@@ -1,0 +1,20 @@
+# =============================================================================
+# Code Owners — Auto-assign reviewers
+# =============================================================================
+
+# Default owner for everything
+* @yourusername
+
+# Core package
+/survey_toolkit/ @yourusername
+
+# Tests
+/tests/ @yourusername
+
+# CI/CD
+/.github/ @yourusername
+
+# Documentation
+/docs/ @yourusername
+/notebooks/ @yourusername
+README.md @yourusername
