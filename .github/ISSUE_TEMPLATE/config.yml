@@ -1,0 +1,25 @@
+# =============================================================================
+# GitHub Issue Template Configuration
+# =============================================================================
+# Controls which templates appear when creating new issues
+# and adds external links for support channels.
+# =============================================================================
+
+blank_issues_enabled: true
+
+contact_links:
+  - name: 📖 Documentation
+    url: https://github.com/yourusername/survey-ml-toolkit/wiki
+    about: Check the documentation before opening an issue.
+
+  - name: 💬 Discussions
+    url: https://github.com/yourusername/survey-ml-toolkit/discussions
+    about: Ask questions, share ideas, and connect with other users.
+
+  - name: 📓 Notebooks & Examples
+    url: https://github.com/yourusername/survey-ml-toolkit/tree/main/notebooks
+    about: Browse example notebooks for usage guidance.
+
+  - name: 📦 PyPI Package
+    url: https://pypi.org/project/survey-ml-toolkit/
+    about: Check the latest published version on PyPI.
