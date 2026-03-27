@@ -1,0 +1,29 @@
+# Override just what you need — defaults fill in the rest
+
+general:
+  output_dir: "my_outputs"
+  figure_dpi: 300
+
+stats:
+  significance_level: 0.01    # Stricter threshold
+
+likert:
+  default_range: [1, 7]      # 7-point scale
+  text_to_numeric:
+    "Strongly Disagree": 1
+    "Disagree": 2
+    "Somewhat Disagree": 3
+    "Neutral": 4
+    "Somewhat Agree": 5
+    "Agree": 6
+    "Strongly Agree": 7
+
+ml:
+  cv_folds: 10
+  scoring: "f1_macro"
+
+reporting:
+  default_title: "My Custom Survey Report"
+  theme:
+    primary_color: "#2d3748"
+    accent_color: "#4299e1"

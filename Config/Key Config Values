@@ -1,0 +1,13 @@
+from survey_toolkit.config import get
+
+# Most commonly used
+get("stats.significance_level")          # 0.05
+get("ml.cv_folds")                       # 5
+get("general.random_state")              # 42
+get("cleaner.speeder_threshold_seconds") # 60
+get("cleaner.straightliner_threshold")   # 0.95
+get("eda.seaborn_style")                 # "whitegrid"
+get("likert.default_range")              # [1, 5]
+get("stats.factor_analysis.kmo_threshold") # 0.6
+get("reporting.default_title")           # "Survey Analysis Report"
+get("clustering.k_range")               # [2, 10]

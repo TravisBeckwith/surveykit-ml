@@ -1,0 +1,15 @@
+from survey_toolkit.config import load_config, get
+
+# Override specific values at runtime
+config = load_config(overrides={
+    "stats": {
+        "significance_level": 0.01,
+    },
+    "ml": {
+        "cv_folds": 10,
+    },
+})
+
+print(get("stats.significance_level"))  # 0.01
+print(get("ml.cv_folds"))              # 10
+print(get("eda.seaborn_style"))        # "whitegrid" (default preserved)

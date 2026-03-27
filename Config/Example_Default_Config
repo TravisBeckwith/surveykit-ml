@@ -1,0 +1,18 @@
+from survey_toolkit.config import get_config, get
+
+# Get full config
+config = get_config()
+
+# Get a section
+stats_config = get_config("stats")
+print(stats_config["significance_level"])  # 0.05
+
+# Get a specific value with dot notation
+alpha = get("stats.significance_level")
+print(alpha)  # 0.05
+
+cv_folds = get("ml.cv_folds")
+print(cv_folds)  # 5
+
+likert_colors = get("eda.color_palette.likert_5")
+print(likert_colors)  # ['#d73027', '#fc8d59', ...]

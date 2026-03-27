@@ -1,0 +1,4 @@
+from survey_toolkit.config import load_config
+
+# Load custom config (merges with defaults)
+config = load_config(config_path="my_project_config.yml")
