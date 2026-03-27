@@ -1,0 +1,13 @@
+include LICENSE
+include README.md
+include requirements.txt
+include pyproject.toml
+
+recursive-include survey_toolkit/templates *
+recursive-include survey_toolkit/data *.csv
+
+prune tests
+prune notebooks
+prune outputs
+prune data
+prune .github

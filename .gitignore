@@ -1,0 +1,69 @@
+# =============================================================================
+# .gitignore — Survey ML Toolkit
+# =============================================================================
+
+# ---- Python ----
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+*.egg
+dist/
+build/
+eggs/
+*.whl
+
+# ---- Virtual Environments ----
+.env
+.venv
+env/
+venv/
+ENV/
+
+# ---- IDE ----
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.project
+.settings/
+
+# ---- Testing ----
+.pytest_cache/
+htmlcov/
+.coverage
+coverage.xml
+*.cover
+
+# ---- Type Checking ----
+.mypy_cache/
+.ruff_cache/
+
+# ---- Jupyter ----
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# ---- OS ----
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# ---- Project Specific ----
+outputs/
+data/*.csv
+data/*.xlsx
+data/*.sav
+data/*.dta
+!data/sample_survey.csv
+
+# ---- Secrets ----
+.env
+.secrets.baseline
+*.pem
+*.key
+
+# ---- Docs ----
+docs/_build/
+site/

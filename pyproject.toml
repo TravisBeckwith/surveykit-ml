@@ -1,0 +1,260 @@
+# ============================================================
+# Build System
+# ============================================================
+[build-system]
+requires = ["setuptools>=68.0", "wheel>=0.41"]
+build-backend = "setuptools.backends._legacy:_Backend"
+
+
+# ============================================================
+# Project Metadata
+# ============================================================
+[project]
+name = "survey-ml-toolkit"
+version = "0.1.0"
+description = "A Python toolkit for statistical analysis and machine learning on survey data."
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.10"
+authors = [
+    {name = "Your Name", email = "you@example.com"},
+]
+keywords = [
+    "survey",
+    "research",
+    "statistics",
+    "machine-learning",
+    "factor-analysis",
+    "data-analysis",
+    "likert",
+    "questionnaire",
+    "social-science",
+    "market-research",
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "Intended Audience :: Education",
+    "Intended Audience :: Developers",
+    "Topic :: Scientific/Engineering :: Information Analysis",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Office/Business",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Operating System :: OS Independent",
+    "Natural Language :: English",
+    "Typing :: Typed",
+]
+dependencies = [
+    "pandas>=2.0",
+    "numpy>=1.24",
+    "scipy>=1.10",
+    "scikit-learn>=1.3",
+    "statsmodels>=0.14",
+    "matplotlib>=3.7",
+    "seaborn>=0.12",
+    "factor-analyzer>=0.5",
+]
+
+[project.optional-dependencies]
+ml = [
+    "xgboost>=1.7",
+    "imbalanced-learn>=0.11",
+    "shap>=0.42",
+]
+nlp = [
+    "nltk>=3.8",
+    "spacy>=3.5",
+    "transformers>=4.30",
+    "wordcloud>=1.9",
+]
+reporting = [
+    "jinja2>=3.1",
+    "weasyprint>=59.0",
+    "openpyxl>=3.1",
+    "python-pptx>=0.6",
+]
+io = [
+    "pyreadstat>=1.2",
+]
+dashboard = [
+    "streamlit>=1.24",
+    "plotly>=5.15",
+]
+dev = [
+    "pytest>=7.4",
+    "pytest-cov>=4.1",
+    "pytest-mock>=3.11",
+    "black>=23.7",
+    "ruff>=0.0.280",
+    "mypy>=1.4",
+    "pre-commit>=3.3",
+    "ipykernel>=6.25",
+    "nbstripout>=0.6",
+]
+docs = [
+    "sphinx>=7.0",
+    "sphinx-rtd-theme>=1.2",
+    "myst-parser>=2.0",
+    "nbsphinx>=0.9",
+]
+all = [
+    "xgboost>=1.7",
+    "imbalanced-learn>=0.11",
+    "shap>=0.42",
+    "nltk>=3.8",
+    "spacy>=3.5",
+    "transformers>=4.30",
+    "wordcloud>=1.9",
+    "jinja2>=3.1",
+    "weasyprint>=59.0",
+    "openpyxl>=3.1",
+    "python-pptx>=0.6",
+    "pyreadstat>=1.2",
+    "streamlit>=1.24",
+    "plotly>=5.15",
+]
+full = [
+    "xgboost>=1.7",
+    "imbalanced-learn>=0.11",
+    "shap>=0.42",
+    "nltk>=3.8",
+    "spacy>=3.5",
+    "transformers>=4.30",
+    "wordcloud>=1.9",
+    "jinja2>=3.1",
+    "weasyprint>=59.0",
+    "openpyxl>=3.1",
+    "python-pptx>=0.6",
+    "pyreadstat>=1.2",
+    "streamlit>=1.24",
+    "plotly>=5.15",
+    "pytest>=7.4",
+    "pytest-cov>=4.1",
+    "pytest-mock>=3.11",
+    "black>=23.7",
+    "ruff>=0.0.280",
+    "mypy>=1.4",
+    "pre-commit>=3.3",
+    "ipykernel>=6.25",
+    "nbstripout>=0.6",
+    "sphinx>=7.0",
+    "sphinx-rtd-theme>=1.2",
+    "myst-parser>=2.0",
+    "nbsphinx>=0.9",
+]
+
+[project.urls]
+Homepage = "https://github.com/yourusername/survey-ml-toolkit"
+Documentation = "https://github.com/yourusername/survey-ml-toolkit/wiki"
+Repository = "https://github.com/yourusername/survey-ml-toolkit"
+Issues = "https://github.com/yourusername/survey-ml-toolkit/issues"
+Changelog = "https://github.com/yourusername/survey-ml-toolkit/blob/main/CHANGELOG.md"
+
+[project.scripts]
+survey-analyze = "survey_toolkit.cli:main"
+survey-report = "survey_toolkit.cli:generate_report"
+
+
+# ============================================================
+# Setuptools Config
+# ============================================================
+[tool.setuptools.packages.find]
+exclude = [
+    "tests",
+    "tests.*",
+    "notebooks",
+    "notebooks.*",
+    "data",
+    "data.*",
+    "outputs",
+    "outputs.*",
+]
+
+[tool.setuptools.package-data]
+survey_toolkit = [
+    "config.yml",
+    "templates/*.html",
+    "templates/*.jinja2",
+    "data/sample_*.csv",
+]
+
+
+# ============================================================
+# Black (Code Formatting)
+# ============================================================
+[tool.black]
+line-length = 88
+target-version = ["py310", "py311", "py312"]
+
+
+# ============================================================
+# Ruff (Linting)
+# ============================================================
+[tool.ruff]
+line-length = 88
+target-version = "py310"
+select = [
+    "E",    # pycodestyle errors
+    "F",    # pyflakes
+    "I",    # isort
+    "N",    # pep8-naming
+    "W",    # pycodestyle warnings
+    "UP",   # pyupgrade
+    "B",    # flake8-bugbear
+    "SIM",  # flake8-simplify
+    "RUF",  # ruff-specific rules
+]
+ignore = ["E501"]
+
+[tool.ruff.isort]
+known-first-party = ["survey_toolkit"]
+
+
+# ============================================================
+# Pytest
+# ============================================================
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-v --cov=survey_toolkit --cov-report=term-missing"
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "integration: marks integration tests",
+]
+
+
+# ============================================================
+# Mypy (Type Checking)
+# ============================================================
+[tool.mypy]
+python_version = "3.10"
+warn_return_any = true
+warn_unused_configs = true
+ignore_missing_imports = true
+check_untyped_defs = true
+disallow_untyped_defs = false
+
+
+# ============================================================
+# Coverage
+# ============================================================
+[tool.coverage.run]
+source = ["survey_toolkit"]
+omit = [
+    "tests/*",
+    "notebooks/*",
+    "survey_toolkit/cli.py",
+]
+
+[tool.coverage.report]
+show_missing = true
+fail_under = 80
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "if __name__ == .__main__.",
+    "raise NotImplementedError",
+]

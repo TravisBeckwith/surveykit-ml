@@ -1,0 +1,36 @@
+survey-ml-toolkit/
+│
+├── README.md
+├── requirements.txt
+├── setup.py
+├── LICENSE
+│
+├── data/
+│   ├── raw/
+│   ├── processed/
+│   └── sample_survey.csv
+│
+├── notebooks/
+│   ├── 01_eda.ipynb
+│   ├── 02_statistical_tests.ipynb
+│   ├── 03_ml_models.ipynb
+│   └── 04_reporting.ipynb
+│
+├── survey_toolkit/
+│   ├── __init__.py
+│   ├── loader.py
+│   ├── cleaner.py
+│   ├── eda.py
+│   ├── stats.py
+│   ├── ml_models.py
+│   ├── reporting.py
+│   └── utils.py
+│
+├── tests/
+│   ├── test_cleaner.py
+│   ├── test_stats.py
+│   └── test_ml_models.py
+│
+└── outputs/
+    ├── figures/
+    └── reports/
