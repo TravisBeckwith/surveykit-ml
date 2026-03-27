@@ -1,0 +1,248 @@
+# =============================================================================
+# Survey ML Toolkit — Default Configuration
+# =============================================================================
+# This file contains default settings for all toolkit modules.
+# Users can override these by passing a custom config path or dict.
+# =============================================================================
+
+# ---- General Settings ----
+general:
+  random_state: 42
+  verbose: true
+  log_level: "INFO"          # DEBUG, INFO, WARNING, ERROR
+  output_dir: "outputs"
+  figure_format: "png"
+  figure_dpi: 150
+  float_precision: 4
+
+# ---- Data Loading ----
+loader:
+  supported_formats:
+    - ".csv"
+    - ".xlsx"
+    - ".json"
+    - ".sav"
+    - ".dta"
+  default_encoding: "utf-8"
+  max_file_size_mb: 500
+
+# ---- Data Cleaning ----
+cleaner:
+  speeder_threshold_seconds: 60
+  straightliner_threshold: 0.95
+  missing_strategy: "median"
+  missing_drop_threshold: 0.5
+  duplicate_keep: "first"
+
+# ---- Likert Scale ----
+likert:
+  default_range: [1, 5]
+  default_labels:
+    1: "Strongly Disagree"
+    2: "Disagree"
+    3: "Neutral"
+    4: "Agree"
+    5: "Strongly Agree"
+  text_to_numeric:
+    "Strongly Disagree": 1
+    "Disagree": 2
+    "Neutral": 3
+    "Agree": 4
+    "Strongly Agree": 5
+  # 7-point scale alternative
+  seven_point_labels:
+    1: "Strongly Disagree"
+    2: "Disagree"
+    3: "Somewhat Disagree"
+    4: "Neutral"
+    5: "Somewhat Agree"
+    6: "Agree"
+    7: "Strongly Agree"
+
+# ---- Column Detection ----
+detection:
+  categorical_threshold: 15    # Max unique values to classify as categorical
+  likert_range: [1, 5]
+  text_min_avg_length: 50      # Min avg string length to classify as text
+  id_column_names:
+    - "id"
+    - "respondent_id"
+    - "response_id"
+    - "uid"
+    - "participant_id"
+    - "subject_id"
+
+# ---- EDA ----
+eda:
+  figure_size:
+    default: [10, 6]
+    heatmap: [10, 8]
+    likert: [10, 6]
+    demographic: [8, 5]
+  color_palette:
+    likert_5:
+      - "#d73027"    # Strongly Disagree (red)
+      - "#fc8d59"    # Disagree (orange)
+      - "#fee08b"    # Neutral (yellow)
+      - "#91cf60"    # Agree (light green)
+      - "#1a9850"    # Strongly Agree (green)
+    likert_7:
+      - "#d73027"
+      - "#f46d43"
+      - "#fdae61"
+      - "#fee08b"
+      - "#a6d96a"
+      - "#66bd63"
+      - "#1a9850"
+    nps:
+      detractor: "#d73027"
+      passive: "#fee08b"
+      promoter: "#1a9850"
+    categorical: "Set2"
+    sequential: "Blues"
+    diverging: "RdBu_r"
+  seaborn_style: "whitegrid"
+  save_figures: true
+
+# ---- Statistical Tests ----
+stats:
+  significance_level: 0.05
+  normality_test: "shapiro"       # shapiro, ks, dagostino
+  normality_min_n: 8              # Minimum n per group for normality test
+  equal_variance_test: "levene"   # levene, bartlett
+  correlation_methods:
+    - "pearson"
+    - "spearman"
+    - "kendall"
+  posthoc_method: "tukey"         # tukey, bonferroni, holm
+
+  # Cronbach's alpha thresholds
+  alpha_thresholds:
+    excellent: 0.9
+    good: 0.8
+    acceptable: 0.7
+    questionable: 0.6
+    poor: 0.5
+
+  # Effect size thresholds
+  effect_sizes:
+    cohens_d:
+      small: 0.2
+      medium: 0.5
+      large: 0.8
+    eta_squared:
+      small: 0.01
+      medium: 0.06
+      large: 0.14
+    cramers_v:
+      small: 0.1
+      medium: 0.3
+      large: 0.5
+    correlation:
+      weak: 0.3
+      moderate: 0.5
+      strong: 0.7
+
+  # Factor analysis
+  factor_analysis:
+    default_rotation: "varimax"
+    default_method: "ml"           # ml, minres, principal
+    kmo_threshold: 0.6
+    loading_threshold: 0.4
+    min_observations_per_item: 5
+    kaiser_criterion: true
+
+# ---- Machine Learning ----
+ml:
+  cv_folds: 5
+  scoring: "accuracy"
+  test_size: 0.2
+  scale_features: true
+
+  # Default models to compare
+  models:
+    logistic_regression:
+      enabled: true
+      params:
+        max_iter: 1000
+        random_state: 42
+    random_forest:
+      enabled: true
+      params:
+        n_estimators: 100
+        random_state: 42
+    gradient_boosting:
+      enabled: true
+      params:
+        n_estimators: 100
+        random_state: 42
+    xgboost:
+      enabled: true
+      params:
+        n_estimators: 100
+        random_state: 42
+        use_label_encoder: false
+        eval_metric: "mlogloss"
+
+  # Default hyperparameter grids
+  tuning_grids:
+    logistic_regression:
+      model__C: [0.01, 0.1, 1, 10]
+      model__penalty: ["l1", "l2"]
+      model__solver: ["saga"]
+    random_forest:
+      model__n_estimators: [50, 100, 200]
+      model__max_depth: [null, 10, 20]
+      model__min_samples_split: [2, 5, 10]
+    gradient_boosting:
+      model__n_estimators: [50, 100, 200]
+      model__max_depth: [3, 5, 7]
+      model__learning_rate: [0.01, 0.1, 0.2]
+    xgboost:
+      model__n_estimators: [50, 100, 200]
+      model__max_depth: [3, 5, 7]
+      model__learning_rate: [0.01, 0.1, 0.2]
+
+# ---- Clustering / Segmentation ----
+clustering:
+  default_method: "kmeans"
+  k_range: [2, 10]
+  n_init: 10
+  metrics:
+    - "silhouette"
+    - "calinski_harabasz"
+    - "inertia"
+  pca_components: 2
+
+# ---- Reporting ----
+reporting:
+  default_format: "html"
+  default_title: "Survey Analysis Report"
+  include_toc: true
+  toc_min_sections: 4
+  max_table_rows: 50
+  embed_figures: true           # Base64 embed vs file reference
+  highlight_significance: true
+  theme:
+    primary_color: "#1a365d"
+    accent_color: "#2563eb"
+    background: "#fafafa"
+    font_family: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
+    max_width: "1100px"
+
+# ---- CLI ----
+cli:
+  default_output_dir: "outputs"
+  default_format: "print"
+  default_missing_strategy: "median"
+
+# ---- Sample Data Generation ----
+sample_data:
+  default_respondents: 500
+  default_likert_items: 10
+  default_demographic_cols: 3
+  include_open_ended: true
+  speeder_pct: 0.05
+  straightliner_pct: 0.04
+  missing_pct: 0.03
+  open_ended_missing_pct: 0.15
