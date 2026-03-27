@@ -1,0 +1,264 @@
+# =============================================================================
+# CI Pipeline — Survey ML Toolkit
+# =============================================================================
+# Triggers: Push to main/develop, all PRs
+# Jobs: lint, test (matrix), coverage, type-check, build
+# =============================================================================
+
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+  # Allow manual trigger
+  workflow_dispatch:
+
+# Cancel in-progress runs for the same branch/PR
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  PYTHON_DEFAULT: "3.11"
+
+jobs:
+  # ===========================================================================
+  # Job 1: Linting & Formatting
+  # ===========================================================================
+  lint:
+    name: 🔍 Lint & Format
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_DEFAULT }}
+
+      - name: Cache pip
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: lint-pip-${{ hashFiles('requirements*.txt', 'pyproject.toml') }}
+          restore-keys: lint-pip-
+
+      - name: Install linting tools
+        run: |
+          python -m pip install --upgrade pip
+          pip install ruff black mypy
+
+      - name: Check formatting with Black
+        run: |
+          black --check --diff survey_toolkit/ tests/
+
+      - name: Lint with Ruff
+        run: |
+          ruff check survey_toolkit/ tests/
+
+      - name: Type check with mypy
+        run: |
+          mypy survey_toolkit/ --ignore-missing-imports
+        continue-on-error: true  # Non-blocking for now
+
+  # ===========================================================================
+  # Job 2: Tests (Matrix Strategy)
+  # ===========================================================================
+  test:
+    name: 🧪 Test (Python ${{ matrix.python-version }}, ${{ matrix.os }})
+    needs: lint
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        python-version: ["3.10", "3.11", "3.12"]
+        exclude:
+          # Reduce matrix for faster CI — skip some OS/version combos
+          - os: macos-latest
+            python-version: "3.10"
+          - os: windows-latest
+            python-version: "3.10"
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Cache pip
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/pip
+            ~/Library/Caches/pip
+            ~\AppData\Local\pip\Cache
+          key: >-
+            test-pip-${{ matrix.os }}-${{ matrix.python-version }}-
+            ${{ hashFiles('requirements*.txt', 'pyproject.toml') }}
+          restore-keys: |
+            test-pip-${{ matrix.os }}-${{ matrix.python-version }}-
+            test-pip-${{ matrix.os }}-
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev,ml]"
+
+      - name: Run fast tests
+        run: |
+          pytest tests/ -v -m "not slow" --tb=short --timeout=60
+
+      - name: Run slow tests
+        if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.11'
+        run: |
+          pytest tests/ -v -m "slow" --tb=short --timeout=300
+
+  # ===========================================================================
+  # Job 3: Coverage Report
+  # ===========================================================================
+  coverage:
+    name: 📊 Coverage
+    needs: lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_DEFAULT }}
+
+      - name: Cache pip
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: cov-pip-${{ hashFiles('requirements*.txt', 'pyproject.toml') }}
+          restore-keys: cov-pip-
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev,ml]"
+
+      - name: Run tests with coverage
+        run: |
+          pytest tests/ \
+            --cov=survey_toolkit \
+            --cov-report=xml:coverage.xml \
+            --cov-report=html:htmlcov \
+            --cov-report=term-missing \
+            -v --timeout=300
+        env:
+          MPLBACKEND: Agg
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          file: coverage.xml
+          flags: unittests
+          fail_ci_if_error: false
+          token: ${{ secrets.CODECOV_TOKEN }}
+
+      - name: Upload coverage HTML report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: htmlcov/
+          retention-days: 14
+
+      - name: Check coverage threshold
+        run: |
+          coverage report --fail-under=70
+
+  # ===========================================================================
+  # Job 4: Build Package
+  # ===========================================================================
+  build:
+    name: 📦 Build Package
+    needs: [test, coverage]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_DEFAULT }}
+
+      - name: Install build tools
+        run: |
+          python -m pip install --upgrade pip
+          pip install build twine
+
+      - name: Build package
+        run: |
+          python -m build
+
+      - name: Check package
+        run: |
+          twine check dist/*
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+          retention-days: 7
+
+      - name: Test install from wheel
+        run: |
+          pip install dist/*.whl
+          python -c "import survey_toolkit; print(f'v{survey_toolkit.__version__} installed successfully')"
+
+  # ===========================================================================
+  # Job 5: Integration Tests
+  # ===========================================================================
+  integration:
+    name: 🔗 Integration Tests
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_DEFAULT }}
+
+      - name: Install package
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev,ml]"
+
+      - name: Run integration tests
+        run: |
+          pytest tests/test_integration.py -v --timeout=600
+        env:
+          MPLBACKEND: Agg
+
+      - name: Test CLI
+        run: |
+          # Generate sample data
+          python -c "
+          from survey_toolkit.utils import generate_sample_survey
+          generate_sample_survey(n_respondents=100, save_path='test_data.csv')
+          "
+
+          # Test CLI commands
+          python -m survey_toolkit.cli test_data.csv --eda --output-dir test_outputs/
+          python -m survey_toolkit.cli test_data.csv --alpha q1 q2 q3 q4 q5 --format json --output-dir test_outputs/
+          python -m survey_toolkit.cli test_data.csv --stats q1 q2 q3 --output-dir test_outputs/
+
+          echo "✅ CLI tests passed"
+        env:
+          MPLBACKEND: Agg
