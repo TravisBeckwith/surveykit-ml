@@ -745,11 +745,11 @@ Contributions are welcome! Here's how to get started:
 If you use this toolkit in your research, please cite:
 
 ```bibtex
-@software{survey_ml_toolkit,
+@software{surveykit_ml,
   title = {Survey ML Toolkit: Statistical Analysis and Machine Learning for Survey Data},
-  author = {Your Name},
-  year = {2024},
-  url = {https://github.com/yourusername/survey-ml-toolkit},
+  author = Travis Beckwith
+  year = {2026},
+  url = {https://github.com/TravisBeckwith/surveykit-ml},
   version = {0.1.0},
   license = {MIT}
 }
