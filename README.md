@@ -8,11 +8,11 @@
 
   <!-- Badges -->
   <p>
-    <a href="https://github.com/yourusername/survey-ml-toolkit/actions/workflows/ci.yml">
-      <img src="https://github.com/yourusername/survey-ml-toolkit/actions/workflows/ci.yml/badge.svg" alt="CI">
+    <a href="https://github.com/TravisBeckwith/surveykit-ml/actions/workflows/ci.yml">
+      <img src="https://github.com/TravisBeckwith/surveykit-ml/actions/workflows/ci.yml/badge.svg" alt="CI">
     </a>
-    <a href="https://codecov.io/gh/yourusername/survey-ml-toolkit">
-      <img src="https://codecov.io/gh/yourusername/survey-ml-toolkit/branch/main/graph/badge.svg" alt="Coverage">
+    <a href="https://codecov.io/gh/TravisBeckwith/surveykit-ml">
+      <img src="https://codecov.io/gh/TravisBeckwith/surveykit-ml/branch/main/graph/badge.svg" alt="Coverage">
     </a>
     <a href="https://pypi.org/project/survey-ml-toolkit/">
       <img src="https://badge.fury.io/py/survey-ml-toolkit.svg" alt="PyPI version">
@@ -166,7 +166,7 @@ pip install "survey-ml-toolkit[all]"
 ### Development Install
 
 ```bash
-git clone https://github.com/yourusername/survey-ml-toolkit.git
+git clone https://github.com/TravisBeckwith/surveykit-ml.git
 cd survey-ml-toolkit
 pip install -e ".[full]"
 pre-commit install
@@ -571,7 +571,7 @@ pytest tests/test_stats.py::TestCronbachsAlpha::test_basic_alpha -v
 ### Setup
 
 ```bash
-git clone https://github.com/yourusername/survey-ml-toolkit.git
+git clone https://github.com/TravisBeckwith/surveykit-ml.git
 cd survey-ml-toolkit
 make dev  # Installs all deps + pre-commit hooks
 ```
@@ -701,12 +701,12 @@ Contributions are welcome! Here's how to get started:
 
 | Resource | Link |
 |----------|------|
-| API Reference | [Wiki](https://github.com/yourusername/survey-ml-toolkit/wiki) |
+| API Reference | [Wiki](https://github.com/TravisBeckwith/surveykit-ml/wiki) |
 | Tutorials | [Notebooks](notebooks/) |
 | Examples | [Examples](examples/) |
 | Changelog | [CHANGELOG.md](CHANGELOG.md) |
-| Issue Tracker | [Issues](https://github.com/yourusername/survey-ml-toolkit/issues) |
-| Discussions | [GitHub Discussions](https://github.com/yourusername/survey-ml-toolkit/discussions) |
+| Issue Tracker | [Issues](https://github.com/TravisBeckwith/surveykit-ml/issues) |
+| Discussions | [GitHub Discussions](https://github.com/TravisBeckwith/surveykit-ml/discussions) |
 
 ---
 
@@ -804,7 +804,7 @@ SOFTWARE.
 
 <div align="center">
   Built for the research community<br><br>
-   <a href="https://github.com/yourusername/survey-ml-toolkit">Star this repo</a> •
-   <a href="https://github.com/yourusername/survey-ml-toolkit/issues">Report bug</a> •
-   <a href="https://github.com/yourusername/survey-ml-toolkit/discussions">Discuss</a>
+   <a href="https://github.com/TravisBeckwith/surveykit-ml">Star this repo</a> •
+   <a href="https://github.com/TravisBeckwith/surveykit-ml/issues">Report bug</a> •
+   <a href="https://github.com/TravisBeckwith/surveykit-ml/discussions">Discuss</a>
 </div>
