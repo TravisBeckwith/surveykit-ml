@@ -1,4 +1,4 @@
-# 📊 Survey ML Toolkit
+#  Survey ML Toolkit
 
 <div align="center">
   <p>
@@ -41,7 +41,7 @@
 
 ---
 
-## 🔍 Overview
+##  Overview
 
 **Survey ML Toolkit** is an end-to-end Python library designed specifically for analyzing survey and questionnaire data. It combines traditional statistical methods used in social science research with modern machine learning techniques, all wrapped in a clean, chainable API.
 
@@ -59,14 +59,14 @@ Whether you're a market researcher analyzing customer satisfaction, an academic 
 
 ---
 
-## ✨ Features
+##  Features
 
-### 📥 Data Loading
+###  Data Loading
 - Multi-format support: **CSV, Excel, SPSS (.sav), Stata (.dta), JSON**
 - Automatic metadata collection (respondent count, missing data, dtypes)
 - Lazy loading for large datasets
 
-### 🧹 Survey-Specific Cleaning
+###  Survey-Specific Cleaning
 - **Speeder detection** — remove respondents who finished too fast
 - **Straightliner detection** — remove respondents giving identical answers
 - **Missing data handling** — 6 strategies (drop, fill, median, mode, interpolate, drop columns)
@@ -74,7 +74,7 @@ Whether you're a market researcher analyzing customer satisfaction, an academic 
 - **Reverse coding** — recode negatively worded items
 - **Method chaining** — fluent API for clean, readable pipelines
 
-### 📊 Exploratory Data Analysis
+###  Exploratory Data Analysis
 - Automated response summaries with skewness and kurtosis
 - **Likert distribution plots** (stacked horizontal bars)
 - **Correlation heatmaps** (Pearson, Spearman, Kendall)
@@ -83,7 +83,7 @@ Whether you're a market researcher analyzing customer satisfaction, an academic 
 - **Missing data visualization**
 - Publication-ready figure export (PNG, 150 DPI)
 
-### 🔬 Statistical Analysis
+###  Statistical Analysis
 - **Cronbach's alpha** with item-total correlations and "alpha if deleted" diagnostics
 - **Group comparisons** — auto-selects the right test:
   - 2 groups, normal: Independent t-test (or Welch's)
@@ -96,21 +96,21 @@ Whether you're a market researcher analyzing customer satisfaction, an academic 
 - **Proportion tests** — one-sample and two-sample z-tests
 - **Effect sizes** — Cohen's d, eta-squared, epsilon-squared, rank-biserial r
 
-### 🤖 Machine Learning
+###  Machine Learning
 - **Model comparison** — Logistic Regression, Random Forest, Gradient Boosting, XGBoost
 - **Stratified k-fold cross-validation**
 - **SHAP feature importance** — identify key survey drivers
 - **Hyperparameter tuning** — grid search with sensible defaults
 - **Prediction** — classify new respondents with probability estimates
 
-### 👥 Respondent Segmentation
+###  Respondent Segmentation
 - **K-Means clustering** with automatic optimal k detection
 - **Silhouette analysis** + **elbow method** + **Calinski-Harabasz index**
 - **Cluster profiling** — mean scores, standard deviations per segment
 - **PCA visualization** — 2D scatter plots of segments
 - **Demographic cross-tabulation** — understand who's in each segment
 
-### 📄 Automated Reporting
+###  Automated Reporting
 - **HTML reports** with embedded figures and styled tables
 - **PDF export** (via WeasyPrint)
 - Table of contents, executive summaries, methodology sections
@@ -118,14 +118,14 @@ Whether you're a market researcher analyzing customer satisfaction, an academic 
 - Customizable sections — mix and match analysis results
 - Multiple report templates (executive, technical, full)
 
-### 🖥️ Command-Line Interface
+###  Command-Line Interface
 - `survey-analyze` — run analyses from the terminal
 - `survey-report` — generate reports from the command line
 - JSON, CSV, and console output formats
 
 ---
 
-## 📦 Installation
+##  Installation
 
 ### Basic Install
 
@@ -178,7 +178,7 @@ pre-commit install
 
 ---
 
-## 🚀 Quick Start
+##  Quick Start
 
 ### 30-Second Example
 
@@ -217,7 +217,7 @@ print(f"Generated: {df.shape}")
 
 ---
 
-## 📖 Examples
+##  Examples
 
 ### 1. Full EDA Pipeline
 
@@ -419,7 +419,7 @@ print(scores.describe())
 
 ---
 
-## 📁 Project Structure
+##  Project Structure
 
 ```
 survey-ml-toolkit/
@@ -486,7 +486,7 @@ survey-ml-toolkit/
 
 ---
 
-## 📊 API Reference
+##  API Reference
 
 ### Core Classes
 
@@ -528,7 +528,7 @@ survey-ml-toolkit/
 
 ---
 
-## 🧪 Testing
+##  Testing
 
 ```bash
 # Run all tests
@@ -566,7 +566,7 @@ pytest tests/test_stats.py::TestCronbachsAlpha::test_basic_alpha -v
 
 ---
 
-## 🔧 Development
+##  Development
 
 ### Setup
 
@@ -610,7 +610,7 @@ release/*   ← release preparation
 
 ---
 
-## 🗺️ Roadmap
+##  Roadmap
 
 ### v0.2.0 (Planned)
 - [ ] NLP module for open-ended response analysis
@@ -643,7 +643,7 @@ release/*   ← release preparation
 
 ---
 
-## 🤝 Contributing
+##  Contributing
 
 Contributions are welcome! Here's how to get started:
 
@@ -688,16 +688,16 @@ Contributions are welcome! Here's how to get started:
 | `release:` | Version release |
 
 ### Areas Where Help Is Needed
-- 🧪 **More test cases** — edge cases, large datasets
-- 📝 **Documentation** — docstrings, examples, tutorials
-- 🌍 **Internationalization** — multi-language support
-- 📊 **New statistical methods** — SEM, Bayesian, multilevel
-- 🎨 **Visualization themes** — APA style, custom palettes
-- 🐛 **Bug reports** — especially on Windows/macOS
+-  **More test cases** — edge cases, large datasets
+-  **Documentation** — docstrings, examples, tutorials
+-  **Internationalization** — multi-language support
+-  **New statistical methods** — SEM, Bayesian, multilevel
+-  **Visualization themes** — APA style, custom palettes
+-  **Bug reports** — especially on Windows/macOS
 
 ---
 
-## 📚 Documentation
+##  Documentation
 
 | Resource | Link |
 |----------|------|
@@ -710,7 +710,7 @@ Contributions are welcome! Here's how to get started:
 
 ---
 
-## 📎 Dependencies
+##  Dependencies
 
 ### Core
 
@@ -740,7 +740,7 @@ Contributions are welcome! Here's how to get started:
 
 ---
 
-## 📄 Citation
+##  Citation
 
 If you use this toolkit in your research, please cite:
 
@@ -757,7 +757,7 @@ If you use this toolkit in your research, please cite:
 
 ---
 
-## 🙏 Acknowledgments
+##  Acknowledgments
 
 This project builds on the excellent work of:
 
@@ -772,7 +772,7 @@ Inspired by survey analysis tools in R (`psych`, `lavaan`, `likert`) and the nee
 
 ---
 
-## 📜 License
+##  License
 
 This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
 
@@ -803,8 +803,8 @@ SOFTWARE.
 ---
 
 <div align="center">
-  Built with ❤️ for the research community<br><br>
-  ⭐ <a href="https://github.com/yourusername/survey-ml-toolkit">Star this repo</a> •
-  🐛 <a href="https://github.com/yourusername/survey-ml-toolkit/issues">Report bug</a> •
-  💬 <a href="https://github.com/yourusername/survey-ml-toolkit/discussions">Discuss</a>
+  Built for the research community<br><br>
+   <a href="https://github.com/yourusername/survey-ml-toolkit">Star this repo</a> •
+   <a href="https://github.com/yourusername/survey-ml-toolkit/issues">Report bug</a> •
+   <a href="https://github.com/yourusername/survey-ml-toolkit/discussions">Discuss</a>
 </div>
