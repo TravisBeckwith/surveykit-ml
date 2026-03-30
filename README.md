@@ -747,7 +747,7 @@ If you use this toolkit in your research, please cite:
 ```bibtex
 @software{surveykit_ml,
   title = {Survey ML Toolkit: Statistical Analysis and Machine Learning for Survey Data},
-  author = Travis Beckwith
+  author = Beckwith, Travis
   year = {2026},
   url = {https://github.com/TravisBeckwith/surveykit-ml},
   version = {0.1.0},
