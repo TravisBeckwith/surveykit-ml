@@ -40,7 +40,7 @@ jobs:
           python-version: ${{ env.PYTHON_DEFAULT }}
 
       - name: Cache pip
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.cache/pip
           key: lint-pip-${{ hashFiles('requirements*.txt', 'pyproject.toml') }}
@@ -93,7 +93,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
 
       - name: Cache pip
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             ~/.cache/pip
@@ -137,7 +137,7 @@ jobs:
           python-version: ${{ env.PYTHON_DEFAULT }}
 
       - name: Cache pip
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.cache/pip
           key: cov-pip-${{ hashFiles('requirements*.txt', 'pyproject.toml') }}
