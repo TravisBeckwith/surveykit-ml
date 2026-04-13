@@ -2,7 +2,7 @@
 # Build System
 # ============================================================
 [build-system]
-requires = ["setuptools>=68.0", "wheel>=0.41"]
+requires = ["setuptools>=82.0.1", "wheel>=0.41"]
 build-backend = "setuptools.backends._legacy:_Backend"
 
 
