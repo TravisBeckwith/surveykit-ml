@@ -99,7 +99,7 @@ docs = [
     "sphinx>=7.0",
     "sphinx-rtd-theme>=1.2",
     "myst-parser>=2.0",
-    "nbsphinx>=0.9",
+    "nbsphinx>=0.9.8",
 ]
 all = [
     "xgboost>=1.7",
@@ -144,7 +144,7 @@ full = [
     "sphinx>=7.0",
     "sphinx-rtd-theme>=1.2",
     "myst-parser>=2.0",
-    "nbsphinx>=0.9",
+    "nbsphinx>=0.9.8",
 ]
 
 [project.urls]
