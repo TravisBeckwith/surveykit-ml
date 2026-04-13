@@ -85,7 +85,7 @@ dashboard = [
     "plotly>=5.15",
 ]
 dev = [
-    "pytest>=7.4",
+    "pytest>=9.0.3",
     "pytest-cov>=4.1",
     "pytest-mock>=3.11",
     "black>=23.7",
@@ -132,7 +132,7 @@ full = [
     "pyreadstat>=1.2",
     "streamlit>=1.24",
     "plotly>=5.15",
-    "pytest>=7.4",
+    "pytest>=9.0.3",
     "pytest-cov>=4.1",
     "pytest-mock>=3.11",
     "black>=23.7",
