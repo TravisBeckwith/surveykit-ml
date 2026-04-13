@@ -62,7 +62,7 @@ dependencies = [
 [project.optional-dependencies]
 ml = [
     "xgboost>=1.7",
-    "imbalanced-learn>=0.11",
+    "imbalanced-learn>=0.14.1",
     "shap>=0.42",
 ]
 nlp = [
@@ -103,7 +103,7 @@ docs = [
 ]
 all = [
     "xgboost>=1.7",
-    "imbalanced-learn>=0.11",
+    "imbalanced-learn>=0.14.1",
     "shap>=0.42",
     "nltk>=3.8",
     "spacy>=3.5",
@@ -119,7 +119,7 @@ all = [
 ]
 full = [
     "xgboost>=1.7",
-    "imbalanced-learn>=0.11",
+    "imbalanced-learn>=0.14.1",
     "shap>=0.42",
     "nltk>=3.8",
     "spacy>=3.5",
