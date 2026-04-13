@@ -98,7 +98,7 @@ dev = [
 docs = [
     "sphinx>=7.0",
     "sphinx-rtd-theme>=1.2",
-    "myst-parser>=2.0",
+    "myst-parser>=4.0.1",
     "nbsphinx>=0.9",
 ]
 all = [
@@ -143,7 +143,7 @@ full = [
     "nbstripout>=0.6",
     "sphinx>=7.0",
     "sphinx-rtd-theme>=1.2",
-    "myst-parser>=2.0",
+    "myst-parser>=4.0.1",
     "nbsphinx>=0.9",
 ]
 
