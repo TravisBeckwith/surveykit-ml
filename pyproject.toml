@@ -3,7 +3,7 @@
 # ============================================================
 [build-system]
 requires = ["setuptools>=68.0", "wheel>=0.41"]
-build-backend = "setuptools.backends._legacy:_Backend"
+build-backend = "setuptools.build_meta"
 
 
 # ============================================================
@@ -11,7 +11,7 @@ build-backend = "setuptools.backends._legacy:_Backend"
 # ============================================================
 [project]
 name = "survey-ml-toolkit"
-version = "0.1.0"
+version = "1.0.0"
 description = "A Python toolkit for statistical analysis and machine learning on survey data."
 readme = "README.md"
 license = {text = "MIT"}
@@ -32,7 +32,7 @@ keywords = [
     "market-research",
 ]
 classifiers = [
-    "Development Status :: 3 - Alpha",
+    "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Science/Research",
     "Intended Audience :: Education",
     "Intended Audience :: Developers",
@@ -52,11 +52,13 @@ dependencies = [
     "pandas>=2.0",
     "numpy>=1.24",
     "scipy>=1.10",
-    "scikit-learn>=1.3",
+    "scikit-learn>=1.3,<1.6",
     "statsmodels>=0.14",
     "matplotlib>=3.7",
     "seaborn>=0.12",
     "factor-analyzer>=0.5",
+    "pyyaml>=6.0",
+    "openpyxl>=3.1",
 ]
 
 [project.optional-dependencies]
@@ -74,7 +76,6 @@ nlp = [
 reporting = [
     "jinja2>=3.1",
     "weasyprint>=59.0",
-    "openpyxl>=3.1",
     "python-pptx>=0.6",
 ]
 io = [
@@ -111,7 +112,6 @@ all = [
     "wordcloud>=1.9",
     "jinja2>=3.1",
     "weasyprint>=59.0",
-    "openpyxl>=3.1",
     "python-pptx>=0.6",
     "pyreadstat>=1.2",
     "streamlit>=1.24",
@@ -127,7 +127,6 @@ full = [
     "wordcloud>=1.9",
     "jinja2>=3.1",
     "weasyprint>=59.0",
-    "openpyxl>=3.1",
     "python-pptx>=0.6",
     "pyreadstat>=1.2",
     "streamlit>=1.24",

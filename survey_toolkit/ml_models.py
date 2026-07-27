@@ -73,7 +73,7 @@ class SurveyClassifier:
         y = subset[target_col]
 
         # Encode target if categorical
-        if y.dtype == "object" or y.dtype.name == "category":
+        if pd.api.types.is_string_dtype(y) or y.dtype.name == "category":
             self.label_encoder = LabelEncoder()
             y = pd.Series(
                 self.label_encoder.fit_transform(y),
@@ -296,11 +296,18 @@ class SurveyClassifier:
 
         shap_values = explainer.shap_values(X_transformed)
 
-        # Handle multi-class SHAP values
+        # Handle multi-class SHAP values.
+        # Older SHAP versions return a list of per-class (n_samples, n_features)
+        # arrays for multiclass models; newer versions instead return a single
+        # (n_samples, n_features, n_classes) ndarray. Average absolute SHAP
+        # values over samples (and classes, if present) to get one importance
+        # value per feature.
         if isinstance(shap_values, list):
             mean_shap = np.mean(
                 [np.abs(sv).mean(axis=0) for sv in shap_values], axis=0
             )
+        elif isinstance(shap_values, np.ndarray) and shap_values.ndim == 3:
+            mean_shap = np.abs(shap_values).mean(axis=(0, 2))
         else:
             mean_shap = np.abs(shap_values).mean(axis=0)
 

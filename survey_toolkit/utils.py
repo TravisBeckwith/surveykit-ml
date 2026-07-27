@@ -165,8 +165,8 @@ def generate_sample_survey(
         },
         "income_bracket": {
             "values": [
-                "<\$25K", "\$25K-\$50K", "\$50K-\$75K",
-                "\$75K-\$100K", "\$100K-\$150K", "\$150K+",
+                "<$25K", "$25K-$50K", "$50K-$75K",
+                "$75K-$100K", "$100K-$150K", "$150K+",
             ],
             "weights": [0.10, 0.18, 0.25, 0.22, 0.15, 0.10],
         },
@@ -370,7 +370,10 @@ def detect_column_types(
         # Check for ID columns
         if (
             col.lower() in ("id", "respondent_id", "response_id", "uid")
-            or (series.nunique() == len(series) and series.dtype == "object")
+            or (
+                series.nunique() == len(series)
+                and pd.api.types.is_string_dtype(series)
+            )
         ):
             column_types["id"].append(col)
             continue
@@ -381,7 +384,7 @@ def detect_column_types(
             continue
 
         # Check for text (long strings)
-        if series.dtype == "object":
+        if pd.api.types.is_string_dtype(series):
             avg_len = series.astype(str).str.len().mean()
             n_unique = series.nunique()
             if avg_len > 50 or n_unique > len(series) * 0.5:

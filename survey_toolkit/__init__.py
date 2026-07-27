@@ -7,7 +7,7 @@ on survey data. Built for research analysts.
 """
 
 __title__ = "survey-ml-toolkit"
-__version__ = "0.1.0"
+__version__ = "1.0.0"
 __author__ = "Your Name"
 __license__ = "MIT"
 __copyright__ = "Copyright 2024 Your Name"
