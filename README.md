@@ -1,4 +1,4 @@
-#  Survey ML Toolkit (Beta v0.1)
+#  Survey ML Toolkit (v1.0.0)
 
 <div align="center">
   <p>
@@ -33,6 +33,7 @@
     <a href="#-quick-start">Quick Start</a> •
     <a href="#-features">Features</a> •
     <a href="#-installation">Installation</a> •
+    <a href="#-configuration">Configuration</a> •
     <a href="#-documentation">Documentation</a> •
     <a href="#-examples">Examples</a> •
     <a href="#-contributing">Contributing</a>
@@ -486,6 +487,111 @@ survey-ml-toolkit/
 
 ---
 
+##  Configuration
+
+Survey ML Toolkit ships with sensible defaults (`survey_toolkit/config.yml`) for
+statistical thresholds, ML settings, plotting styles, and more. You can use it
+as-is, override individual values, or supply your own config file.
+
+### Example default config
+
+```python
+from survey_toolkit.config import get_config, get
+
+# Get full config
+config = get_config()
+
+# Get a section
+stats_config = get_config("stats")
+print(stats_config["significance_level"])  # 0.05
+
+# Get a specific value with dot notation
+alpha = get("stats.significance_level")
+print(alpha)  # 0.05
+
+cv_folds = get("ml.cv_folds")
+print(cv_folds)  # 5
+
+likert_colors = get("eda.color_palette.likert_5")
+print(likert_colors)  # ['#d73027', '#fc8d59', ...]
+```
+
+### Key config values
+
+```python
+from survey_toolkit.config import get
+
+# Most commonly used
+get("stats.significance_level")          # 0.05
+get("ml.cv_folds")                       # 5
+get("general.random_state")              # 42
+get("cleaner.speeder_threshold_seconds") # 60
+get("cleaner.straightliner_threshold")   # 0.95
+get("eda.seaborn_style")                 # "whitegrid"
+get("likert.default_range")              # [1, 5]
+get("stats.factor_analysis.kmo_threshold") # 0.6
+get("reporting.default_title")           # "Survey Analysis Report"
+get("clustering.k_range")               # [2, 10]
+```
+
+### Custom config
+
+Merge your own YAML file with the defaults — see
+[`Config/my_project_config.yaml`](Config/my_project_config.yaml) for a
+full example:
+
+```python
+from survey_toolkit.config import load_config
+
+# Load custom config (merges with defaults)
+config = load_config(config_path="my_project_config.yml")
+```
+
+### Runtime overrides
+
+Override specific values without a config file:
+
+```python
+from survey_toolkit.config import load_config, get
+
+# Override specific values at runtime
+config = load_config(overrides={
+    "stats": {
+        "significance_level": 0.01,
+    },
+    "ml": {
+        "cv_folds": 10,
+    },
+})
+
+print(get("stats.significance_level"))  # 0.01
+print(get("ml.cv_folds"))              # 10
+print(get("eda.seaborn_style"))        # "whitegrid" (default preserved)
+```
+
+### Using config in your own code
+
+```python
+# Example: stats.py using config values
+from survey_toolkit.config import get
+
+
+class SurveyStats:
+    def __init__(self, data, significance_level=None):
+        self.data = data
+        self.significance_level = (
+            significance_level or get("stats.significance_level", 0.05)
+        )
+
+    def compare_groups(self, variable, group_col, test="auto"):
+        # Uses config for normality test settings
+        normality_min_n = get("stats.normality_min_n", 8)
+        posthoc_method = get("stats.posthoc_method", "tukey")
+        # ... rest of the method
+```
+
+---
+
 ##  API Reference
 
 ### Core Classes
@@ -747,10 +853,10 @@ If you use this toolkit in your research, please cite:
 ```bibtex
 @software{surveykit_ml,
   title = {Survey ML Toolkit: Statistical Analysis and Machine Learning for Survey Data},
-  author = Beckwith, Travis
+  author = {Beckwith, Travis},
   year = {2026},
   url = {https://github.com/TravisBeckwith/surveykit-ml},
-  version = {0.1.0},
+  version = {1.0.0},
   license = {MIT}
 }
 ```

@@ -15,11 +15,13 @@ INSTALL_REQUIRES = [
     "pandas>=2.0",
     "numpy>=1.24",
     "scipy>=1.10",
-    "scikit-learn>=1.3",
+    "scikit-learn>=1.3,<1.6",
     "statsmodels>=0.14",
     "matplotlib>=3.7",
     "seaborn>=0.12",
     "factor-analyzer>=0.5",
+    "pyyaml>=6.0",
+    "openpyxl>=3.1",
 ]
 
 # Optional / extra dependency groups
@@ -41,7 +43,6 @@ EXTRAS_REQUIRE = {
     "reporting": [
         "jinja2>=3.1",
         "weasyprint>=59.0",
-        "openpyxl>=3.1",
         "python-pptx>=0.6",
     ],
     # SPSS / Stata file support
@@ -93,7 +94,7 @@ EXTRAS_REQUIRE["full"] = list(set(
 setup(
     # ---- Package Metadata ----
     name="survey-ml-toolkit",
-    version="0.1.0",
+    version="1.0.0",
     author="Your Name",
     author_email="you@example.com",
     description=(
@@ -134,7 +135,7 @@ setup(
 
     # ---- Classifiers (PyPI metadata) ----
     classifiers=[
-        "Development Status :: 3 - Alpha",
+        "Development Status :: 5 - Production/Stable",
         "Intended Audience :: Science/Research",
         "Intended Audience :: Education",
         "Intended Audience :: Developers",

@@ -266,6 +266,11 @@ class SurveyStats:
         """
         subset = self.data[columns].dropna()
         n = len(subset)
+
+        valid_methods = ("pearson", "spearman", "kendall")
+        if method not in valid_methods:
+            raise ValueError(f"Unknown method: {method}")
+
         corr = subset.corr(method=method)
 
         # Calculate p-values
