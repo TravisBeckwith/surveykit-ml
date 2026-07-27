@@ -3,9 +3,12 @@ Command-line interface for the Survey ML Toolkit.
 """
 
 import argparse
-import sys
 import json
+import sys
 from pathlib import Path
+
+import numpy as np
+import pandas as pd
 
 
 def main():
@@ -165,8 +168,8 @@ Examples:
         return
 
     # ---- Load data ----
-    from survey_toolkit.loader import SurveyLoader
     from survey_toolkit.cleaner import SurveyCleaner
+    from survey_toolkit.loader import SurveyLoader
 
     print(f"📥 Loading data from {args.input_file}...")
     loader = SurveyLoader(args.input_file)
@@ -179,11 +182,7 @@ Examples:
     # ---- Clean ----
     print(f"🧹 Cleaning data (strategy: {args.missing_strategy})...")
     cleaner = SurveyCleaner(df)
-    clean_df = (
-        cleaner
-        .handle_missing(strategy=args.missing_strategy)
-        .get_clean_data()
-    )
+    clean_df = cleaner.handle_missing(strategy=args.missing_strategy).get_clean_data()
     print(f"   {len(clean_df)} respondents after cleaning.")
 
     # ---- EDA ----
@@ -224,7 +223,7 @@ Examples:
         from survey_toolkit.stats import SurveyStats
 
         col1, col2 = args.chi_square
-        print(f"📊 Chi-square test: {col1} × {col2}...")
+        print(f"📊 Chi-square test: {col1} x {col2}...")
         survey_stats = SurveyStats(clean_df)
         result = survey_stats.chi_square_test(col1, col2)
         _output(result, args.format, output_dir / "chi_square")
@@ -248,9 +247,7 @@ Examples:
 
         print(f"🔬 Running factor analysis on {args.factor}...")
         survey_stats = SurveyStats(clean_df)
-        result = survey_stats.factor_analysis(
-            args.factor, n_factors=args.n_factors
-        )
+        result = survey_stats.factor_analysis(args.factor, n_factors=args.n_factors)
         _output(result["loadings"], args.format, output_dir / "factor_loadings")
         print(f"   KMO: {result['kmo']}")
         print(f"   Factors: {result['n_factors']}")
@@ -290,9 +287,7 @@ Examples:
 
         print(f"🤖 Running classification: {args.classify} → {args.target}...")
         classifier = SurveyClassifier(clean_df)
-        classifier.prepare_data(
-            feature_cols=args.classify, target_col=args.target
-        )
+        classifier.prepare_data(feature_cols=args.classify, target_col=args.target)
         results = classifier.run_model_comparison()
         _output(results, args.format, output_dir / "model_comparison")
 
@@ -325,20 +320,13 @@ def _output(data, fmt: str, filepath: Path):
         print(f"   💾 Saved to {outpath}")
 
 
-# Need these imports for _output function
-import pandas as pd
-import numpy as np
-
-
 def generate_report():
     """CLI entry point for report generation."""
     parser = argparse.ArgumentParser(
         prog="survey-report",
         description="Generate an HTML/PDF report from survey analysis.",
     )
-    parser.add_argument(
-        "input_file", type=str, help="Survey data file."
-    )
+    parser.add_argument("input_file", type=str, help="Survey data file.")
     parser.add_argument(
         "--columns",
         nargs="+",
@@ -376,20 +364,16 @@ def generate_report():
 
     args = parser.parse_args()
 
-    from survey_toolkit.loader import SurveyLoader
     from survey_toolkit.cleaner import SurveyCleaner
+    from survey_toolkit.eda import SurveyEDA
+    from survey_toolkit.loader import SurveyLoader
     from survey_toolkit.reporting import ReportGenerator
     from survey_toolkit.stats import SurveyStats
-    from survey_toolkit.eda import SurveyEDA
 
     # Load & Clean
     print(f"📥 Loading {args.input_file}...")
     df = SurveyLoader(args.input_file).load()
-    clean_df = (
-        SurveyCleaner(df)
-        .handle_missing(strategy="median")
-        .get_clean_data()
-    )
+    clean_df = SurveyCleaner(df).handle_missing(strategy="median").get_clean_data()
 
     # Build report
     report = ReportGenerator(clean_df)

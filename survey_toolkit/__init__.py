@@ -42,14 +42,13 @@ def __getattr__(name: str):
     """Lazy-load public API objects on first access."""
     if name in _LAZY_IMPORTS:
         import importlib
+
         module = importlib.import_module(_LAZY_IMPORTS[name])
         attr = getattr(module, name)
         globals()[name] = attr
         return attr
 
-    raise AttributeError(
-        f"module 'survey_toolkit' has no attribute '{name}'"
-    )
+    raise AttributeError(f"module 'survey_toolkit' has no attribute '{name}'")
 
 
 def __dir__():

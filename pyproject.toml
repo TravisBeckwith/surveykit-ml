@@ -196,6 +196,8 @@ target-version = ["py310", "py311", "py312"]
 [tool.ruff]
 line-length = 88
 target-version = "py310"
+
+[tool.ruff.lint]
 select = [
     "E",    # pycodestyle errors
     "F",    # pyflakes
@@ -207,9 +209,15 @@ select = [
     "SIM",  # flake8-simplify
     "RUF",  # ruff-specific rules
 ]
-ignore = ["E501"]
+ignore = [
+    "E501",
+    # X / y (and X_train, X_new, etc.) are the standard scikit-learn
+    # convention for feature matrices and are used throughout the ML
+    # code intentionally — not a naming mistake.
+    "N806",
+]
 
-[tool.ruff.isort]
+[tool.ruff.lint.isort]
 known-first-party = ["survey_toolkit"]
 
 

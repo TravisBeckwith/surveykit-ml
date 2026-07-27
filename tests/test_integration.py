@@ -2,11 +2,13 @@
 End-to-end integration tests for the Survey ML Toolkit.
 """
 
-import pytest
-import pandas as pd
-import numpy as np
 from pathlib import Path
+
 import matplotlib
+import numpy as np
+import pandas as pd
+import pytest
+
 matplotlib.use("Agg")
 
 
@@ -21,13 +23,13 @@ class TestFullPipeline:
         """
         import matplotlib.pyplot as plt
 
-        from survey_toolkit.utils import generate_sample_survey
-        from survey_toolkit.loader import SurveyLoader
         from survey_toolkit.cleaner import SurveyCleaner
         from survey_toolkit.eda import SurveyEDA
-        from survey_toolkit.stats import SurveyStats
+        from survey_toolkit.loader import SurveyLoader
         from survey_toolkit.ml_models import SurveyClassifier, SurveySegmentation
         from survey_toolkit.reporting import ReportGenerator
+        from survey_toolkit.stats import SurveyStats
+        from survey_toolkit.utils import generate_sample_survey
 
         # 1. Generate sample data
         csv_path = str(tmp_dir / "survey.csv")
@@ -48,8 +50,7 @@ class TestFullPipeline:
         likert_cols = [f"q{i}" for i in range(1, 11)]
         cleaner = SurveyCleaner(df)
         clean_df = (
-            cleaner
-            .remove_speeders("duration_seconds", min_seconds=60)
+            cleaner.remove_speeders("duration_seconds", min_seconds=60)
             .remove_straightliners(likert_cols, threshold=0.95)
             .handle_missing(strategy="median")
             .get_clean_data()
@@ -90,7 +91,7 @@ class TestFullPipeline:
 
         # 6. Classification
         classifier = SurveyClassifier(clean_df)
-        X, y = classifier.prepare_data(
+        classifier.prepare_data(
             feature_cols=likert_cols,
             target_col="satisfaction_group",
         )
@@ -119,9 +120,7 @@ class TestFullPipeline:
         viz = seg.visualize_clusters()
         assert "PC1" in viz.columns
 
-        demo_profiles = seg.profile_clusters_by_demographics(
-            ["age_group", "gender"]
-        )
+        demo_profiles = seg.profile_clusters_by_demographics(["age_group", "gender"])
         assert len(demo_profiles) > 0
 
         # 8. Report
@@ -139,14 +138,10 @@ class TestFullPipeline:
 
         for fig_path in eda.figures:
             if Path(fig_path).exists():
-                report.add_figure(
-                    f"Figure: {Path(fig_path).stem}", fig_path
-                )
+                report.add_figure(f"Figure: {Path(fig_path).stem}", fig_path)
 
         report_path = str(tmp_dir / "full_report.html")
-        output = report.generate(
-            output_path=report_path, auto_sections=False
-        )
+        output = report.generate(output_path=report_path, auto_sections=False)
 
         assert Path(output).exists()
         content = Path(output).read_text()
@@ -158,10 +153,10 @@ class TestFullPipeline:
 
     def test_minimal_pipeline(self, tmp_dir):
         """Test minimum viable pipeline: load → clean → stats."""
-        from survey_toolkit.utils import generate_sample_survey
-        from survey_toolkit.loader import SurveyLoader
         from survey_toolkit.cleaner import SurveyCleaner
+        from survey_toolkit.loader import SurveyLoader
         from survey_toolkit.stats import SurveyStats
+        from survey_toolkit.utils import generate_sample_survey
 
         csv_path = str(tmp_dir / "minimal.csv")
         generate_sample_survey(
@@ -171,11 +166,7 @@ class TestFullPipeline:
         )
 
         df = SurveyLoader(csv_path).load()
-        clean_df = (
-            SurveyCleaner(df)
-            .handle_missing(strategy="median")
-            .get_clean_data()
-        )
+        clean_df = SurveyCleaner(df).handle_missing(strategy="median").get_clean_data()
 
         stats = SurveyStats(clean_df)
         alpha = stats.cronbachs_alpha([f"q{i}" for i in range(1, 6)])
@@ -184,17 +175,16 @@ class TestFullPipeline:
     def test_import_all_public_api(self):
         """Verify all public API imports work."""
         from survey_toolkit import (
-            SurveyLoader,
+            ReportGenerator,
+            SurveyClassifier,
             SurveyCleaner,
             SurveyEDA,
-            SurveyStats,
-            SurveyClassifier,
+            SurveyLoader,
             SurveySegmentation,
-            ReportGenerator,
-            generate_sample_survey,
+            SurveyStats,
             detect_column_types,
+            generate_sample_survey,
             timer,
-            logger,
         )
 
         assert callable(SurveyLoader)
@@ -219,10 +209,13 @@ class TestFullPipeline:
 
     def test_chaining_across_modules(self, tmp_dir):
         """Test that data flows cleanly between modules."""
-        from survey_toolkit.utils import generate_sample_survey
         from survey_toolkit.cleaner import SurveyCleaner
         from survey_toolkit.stats import SurveyStats
-        from survey_toolkit.utils import detect_column_types, compute_scale_scores
+        from survey_toolkit.utils import (
+            compute_scale_scores,
+            detect_column_types,
+            generate_sample_survey,
+        )
 
         df = generate_sample_survey(n_respondents=100, n_likert_items=6)
 
@@ -259,12 +252,14 @@ class TestFullPipeline:
         from survey_toolkit.cleaner import SurveyCleaner
         from survey_toolkit.stats import SurveyStats
 
-        df = pd.DataFrame({
-            "q1": [3] * 50,
-            "q2": [3] * 50,
-            "q3": [3] * 50,
-            "group": ["A"] * 25 + ["B"] * 25,
-        })
+        df = pd.DataFrame(
+            {
+                "q1": [3] * 50,
+                "q2": [3] * 50,
+                "q3": [3] * 50,
+                "group": ["A"] * 25 + ["B"] * 25,
+            }
+        )
 
         clean = SurveyCleaner(df).get_clean_data()
         stats = SurveyStats(clean)
@@ -281,24 +276,24 @@ class TestFullPipeline:
 
         rng = np.random.RandomState(42)
         n = 100
-        df = pd.DataFrame({
-            f"q{i}": [
-                rng.choice([1, 2, 3, 4, 5, np.nan], p=[0.1, 0.1, 0.1, 0.1, 0.1, 0.5])
-                for _ in range(n)
-            ]
-            for i in range(1, 6)
-        })
+        df = pd.DataFrame(
+            {
+                f"q{i}": [
+                    rng.choice(
+                        [1, 2, 3, 4, 5, np.nan], p=[0.1, 0.1, 0.1, 0.1, 0.1, 0.5]
+                    )
+                    for _ in range(n)
+                ]
+                for i in range(1, 6)
+            }
+        )
 
         # Validation should flag warnings
         validation = validate_survey_data(df, max_missing_pct=30)
         assert len(validation["warnings"]) > 0
 
         # Cleaning with median should handle it
-        clean = (
-            SurveyCleaner(df)
-            .handle_missing(strategy="median")
-            .get_clean_data()
-        )
+        clean = SurveyCleaner(df).handle_missing(strategy="median").get_clean_data()
         for col in clean.columns:
             assert clean[col].isna().sum() == 0
 

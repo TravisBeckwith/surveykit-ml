@@ -2,23 +2,23 @@
 Utility functions and helpers for the Survey ML Toolkit.
 """
 
-import pandas as pd
-import numpy as np
+import functools
 import logging
 import time
-import functools
-from typing import Optional
 from pathlib import Path
 
+import numpy as np
+import pandas as pd
 
 # ============================================================
 # Logging
 # ============================================================
 
+
 def get_logger(
     name: str = "survey_toolkit",
     level: int = logging.INFO,
-    log_file: Optional[str] = None,
+    log_file: str | None = None,
 ) -> logging.Logger:
     """
     Create and configure a logger instance.
@@ -68,6 +68,7 @@ logger = get_logger()
 # Decorators
 # ============================================================
 
+
 def timer(func):
     """Decorator that logs the execution time of a function."""
 
@@ -107,13 +108,14 @@ def validate_dataframe(func):
 # Sample Data Generator
 # ============================================================
 
+
 def generate_sample_survey(
     n_respondents: int = 500,
     n_likert_items: int = 10,
     n_demographic_cols: int = 3,
     include_open_ended: bool = True,
     random_state: int = 42,
-    save_path: Optional[str] = None,
+    save_path: str | None = None,
 ) -> pd.DataFrame:
     """
     Generate a realistic sample survey dataset for testing.
@@ -123,7 +125,7 @@ def generate_sample_survey(
     n_respondents : int
         Number of survey respondents.
     n_likert_items : int
-        Number of Likert-scale questions (1–5).
+        Number of Likert-scale questions (1-5).
     n_demographic_cols : int
         Number of demographic columns to include.
     include_open_ended : bool
@@ -165,8 +167,12 @@ def generate_sample_survey(
         },
         "income_bracket": {
             "values": [
-                "<$25K", "$25K-$50K", "$50K-$75K",
-                "$75K-$100K", "$100K-$150K", "$150K+",
+                "<$25K",
+                "$25K-$50K",
+                "$50K-$75K",
+                "$75K-$100K",
+                "$100K-$150K",
+                "$150K+",
             ],
             "weights": [0.10, 0.18, 0.25, 0.22, 0.15, 0.10],
         },
@@ -176,8 +182,12 @@ def generate_sample_survey(
         },
         "employment": {
             "values": [
-                "Full-time", "Part-time", "Self-employed",
-                "Unemployed", "Student", "Retired",
+                "Full-time",
+                "Part-time",
+                "Self-employed",
+                "Unemployed",
+                "Student",
+                "Retired",
             ],
             "weights": [0.45, 0.12, 0.10, 0.08, 0.15, 0.10],
         },
@@ -199,8 +209,12 @@ def generate_sample_survey(
     remainder = n_likert_items % n_constructs
 
     construct_names = [
-        "satisfaction", "usability", "trust",
-        "loyalty", "engagement", "value",
+        "satisfaction",
+        "usability",
+        "trust",
+        "loyalty",
+        "engagement",
+        "value",
     ]
 
     item_idx = 1
@@ -212,7 +226,7 @@ def generate_sample_survey(
 
         # Generate correlated responses
         base = rng.normal(3.2, 0.8, size=n_respondents)
-        for j in range(n_items):
+        for _j in range(n_items):
             col_name = f"q{item_idx}"
             noise = rng.normal(0, 0.5, size=n_respondents)
             raw = base + noise
@@ -327,6 +341,7 @@ def generate_sample_survey(
 # Column Type Detection
 # ============================================================
 
+
 def detect_column_types(
     data: pd.DataFrame,
     likert_range: tuple[int, int] = (1, 5),
@@ -368,12 +383,8 @@ def detect_column_types(
             continue
 
         # Check for ID columns
-        if (
-            col.lower() in ("id", "respondent_id", "response_id", "uid")
-            or (
-                series.nunique() == len(series)
-                and pd.api.types.is_string_dtype(series)
-            )
+        if col.lower() in ("id", "respondent_id", "response_id", "uid") or (
+            series.nunique() == len(series) and pd.api.types.is_string_dtype(series)
         ):
             column_types["id"].append(col)
             continue
@@ -428,9 +439,10 @@ def detect_column_types(
 # Data Validation
 # ============================================================
 
+
 def validate_survey_data(
     data: pd.DataFrame,
-    required_columns: Optional[list[str]] = None,
+    required_columns: list[str] | None = None,
     max_missing_pct: float = 50.0,
     min_respondents: int = 30,
 ) -> dict:
@@ -458,9 +470,7 @@ def validate_survey_data(
 
     # Check minimum respondents
     if len(data) < min_respondents:
-        issues.append(
-            f"Only {len(data)} respondents (minimum: {min_respondents})"
-        )
+        issues.append(f"Only {len(data)} respondents (minimum: {min_respondents})")
 
     # Check required columns
     if required_columns:
@@ -475,9 +485,7 @@ def validate_survey_data(
         if pct > max_missing_pct:
             high_missing.append(f"{col} ({pct:.1f}%)")
     if high_missing:
-        warnings.append(
-            f"Columns with >{max_missing_pct}% missing: {high_missing}"
-        )
+        warnings.append(f"Columns with >{max_missing_pct}% missing: {high_missing}")
 
     # Check for zero-variance columns
     numeric_cols = data.select_dtypes(include=[np.number]).columns
@@ -503,6 +511,7 @@ def validate_survey_data(
 # ============================================================
 # Scale Scoring
 # ============================================================
+
 
 def compute_scale_scores(
     data: pd.DataFrame,
@@ -531,9 +540,7 @@ def compute_scale_scores(
     for construct, items in construct_map.items():
         valid_items = [col for col in items if col in data.columns]
         if not valid_items:
-            logger.warning(
-                f"No valid items found for construct '{construct}'"
-            )
+            logger.warning(f"No valid items found for construct '{construct}'")
             continue
         if method == "mean":
             scores[construct] = data[valid_items].mean(axis=1)
@@ -549,10 +556,11 @@ def compute_scale_scores(
 # Export Helpers
 # ============================================================
 
+
 def export_results(
     results: dict,
     output_dir: str = "outputs",
-    formats: list[str] = None,
+    formats: list[str] | None = None,
 ) -> list[str]:
     """
     Export analysis results to multiple formats.
@@ -596,6 +604,7 @@ def export_results(
 
             elif isinstance(result, dict):
                 import json
+
                 fpath = output_path / f"{name}.json"
                 with open(fpath, "w") as f:
                     json.dump(result, f, indent=2, default=str)
