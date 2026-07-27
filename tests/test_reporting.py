@@ -2,10 +2,9 @@
 Tests for survey_toolkit.reporting module.
 """
 
-import pytest
-import pandas as pd
-import numpy as np
 from pathlib import Path
+
+import pandas as pd
 
 
 class TestReportGenerator:
@@ -100,10 +99,13 @@ class TestReportGenerator:
         report = ReportGenerator(clean_survey_df)
 
         # Significant result
-        report.add_stats_result("Sig Test", {
-            "p_value": 0.01,
-            "significant": True,
-        })
+        report.add_stats_result(
+            "Sig Test",
+            {
+                "p_value": 0.01,
+                "significant": True,
+            },
+        )
         content = report.sections[0]["content"]
         assert "green" in content
 
@@ -111,17 +113,22 @@ class TestReportGenerator:
         from survey_toolkit.reporting import ReportGenerator
 
         report = ReportGenerator(clean_survey_df)
-        report.add_stats_result("NS Test", {
-            "p_value": 0.50,
-            "significant": False,
-        })
+        report.add_stats_result(
+            "NS Test",
+            {
+                "p_value": 0.50,
+                "significant": False,
+            },
+        )
         content = report.sections[0]["content"]
         assert "red" in content
 
     def test_add_figure(self, clean_survey_df, tmp_dir):
-        from survey_toolkit.reporting import ReportGenerator
-        import matplotlib.pyplot as plt
         import matplotlib
+        import matplotlib.pyplot as plt
+
+        from survey_toolkit.reporting import ReportGenerator
+
         matplotlib.use("Agg")
 
         # Create a dummy figure
@@ -132,9 +139,7 @@ class TestReportGenerator:
         plt.close("all")
 
         report = ReportGenerator(clean_survey_df)
-        report.add_figure(
-            "Test Figure", str(fig_path), description="A test figure"
-        )
+        report.add_figure("Test Figure", str(fig_path), description="A test figure")
 
         assert len(report.sections) == 1
         assert report.sections[0]["type"] == "figure"
@@ -241,9 +246,7 @@ class TestReportGenerator:
         assert "<style>" in content
         assert "font-family" in content
 
-    def test_full_report_pipeline(
-        self, clean_survey_df, likert_columns, tmp_dir
-    ):
+    def test_full_report_pipeline(self, clean_survey_df, likert_columns, tmp_dir):
         from survey_toolkit.reporting import ReportGenerator
         from survey_toolkit.stats import SurveyStats
 

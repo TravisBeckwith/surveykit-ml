@@ -2,9 +2,8 @@
 Tests for survey_toolkit.loader module.
 """
 
-import pytest
 import pandas as pd
-from pathlib import Path
+import pytest
 
 
 class TestSurveyLoader:
@@ -106,9 +105,7 @@ class TestSurveyLoader:
 
         # CSV with custom separator
         path = tmp_dir / "semicolon.csv"
-        pd.DataFrame({"a": [1, 2], "b": [3, 4]}).to_csv(
-            path, index=False, sep=";"
-        )
+        pd.DataFrame({"a": [1, 2], "b": [3, 4]}).to_csv(path, index=False, sep=";")
         loader = SurveyLoader(str(path))
         df = loader.load(sep=";")
         assert list(df.columns) == ["a", "b"]

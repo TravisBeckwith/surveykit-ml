@@ -5,6 +5,39 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Fixed
+- **CI lint job failures**: `black --check` was failing on all 22 source/test
+  files (never actually run against the codebase before). Ran `black` to
+  reformat everything; `black --check` now passes.
+- **Ruff lint errors** (52 found once `black` was fixed, since CI stops at
+  the first failing step in the job): moved the deprecated top-level
+  `[tool.ruff]` `select`/`ignore`/`isort` settings to `[tool.ruff.lint]`;
+  added `N806` to the ignore list (the codebase's `X`/`y` scikit-learn
+  variable naming is intentional, not a naming error); fixed ambiguous
+  Unicode characters, a mid-file import, a mutable class-attribute default,
+  an implicit-`Optional` hint, a list-concatenation, unused
+  unpacked/loop variables, missing `raise ... from err` exception chaining,
+  missing `zip(..., strict=True)`, and `try/except/pass` blocks replaced
+  with `contextlib.suppress`. `ruff check` now passes with zero errors.
+- **Runtime `TypeError` on import** (introduced and caught during the ruff
+  fix above, verified via a full test-suite run before considering it
+  done): `cleaner.py` and `stats.py` used the builtin `any`/`callable` as
+  type hints instead of `typing.Any`/`typing.Callable`. This was
+  harmless as `Optional[any]`, but ruff's `--fix` auto-modernized it to
+  `any | None`, which raises `TypeError` at class-definition time (i.e.
+  on `import survey_toolkit`) since the builtin `any` function doesn't
+  support the `|` operator. Fixed by importing and using the correct
+  `Any`/`Callable` types from `typing`/`collections.abc`.
+- `mypy` (informational only — already `continue-on-error: true` in CI,
+  so non-blocking) still reports 29 pre-existing type-annotation gaps
+  (mostly untyped empty containers and `self.x = None` attributes later
+  reassigned to a real type) across `cleaner.py`, `eda.py`, `loader.py`,
+  `ml_models.py`, `reporting.py`, `stats.py`, and `utils.py`. Left as-is
+  since fixing them is a larger, separate effort outside the scope of the
+  failing lint job.
+
 ## [1.0.0] - 2026-07-27
 
 ### Changed

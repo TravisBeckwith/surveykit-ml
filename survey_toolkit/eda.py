@@ -2,12 +2,13 @@
 Exploratory Data Analysis for survey data.
 """
 
-import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
-import seaborn as sns
 from pathlib import Path
-from typing import Optional
+
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+import seaborn as sns
+
 from survey_toolkit.utils import logger, timer
 
 
@@ -47,52 +48,59 @@ class SurveyEDA:
                 "n_unique": int(self.data[col].nunique()),
             }
             if pd.api.types.is_numeric_dtype(self.data[col]):
-                info.update({
-                    "mean": round(self.data[col].mean(), 2),
-                    "median": round(self.data[col].median(), 2),
-                    "std": round(self.data[col].std(), 2),
-                    "min": self.data[col].min(),
-                    "max": self.data[col].max(),
-                    "skew": round(self.data[col].skew(), 2),
-                    "kurtosis": round(self.data[col].kurtosis(), 2),
-                })
+                info.update(
+                    {
+                        "mean": round(self.data[col].mean(), 2),
+                        "median": round(self.data[col].median(), 2),
+                        "std": round(self.data[col].std(), 2),
+                        "min": self.data[col].min(),
+                        "max": self.data[col].max(),
+                        "skew": round(self.data[col].skew(), 2),
+                        "kurtosis": round(self.data[col].kurtosis(), 2),
+                    }
+                )
             summary.append(info)
         return pd.DataFrame(summary)
 
     def plot_likert_distribution(
         self,
         columns: list[str],
-        labels: Optional[dict[str, str]] = None,
-        colors: Optional[list[str]] = None,
+        labels: dict[str, str] | None = None,
+        colors: list[str] | None = None,
         save: bool = True,
     ):
         """Plot horizontal stacked bar chart for Likert items."""
-        colors = colors or [
-            "#d73027", "#fc8d59", "#fee08b", "#91cf60", "#1a9850"
-        ]
+        colors = colors or ["#d73027", "#fc8d59", "#fee08b", "#91cf60", "#1a9850"]
 
         fig, axes = plt.subplots(
-            len(columns), 1,
+            len(columns),
+            1,
             figsize=(10, len(columns) * 1.2),
         )
         if len(columns) == 1:
             axes = [axes]
 
-        for ax, col in zip(axes, columns):
+        for ax, col in zip(axes, columns, strict=True):
             counts = self.data[col].value_counts().sort_index()
             pcts = counts / counts.sum() * 100
             left = 0
             for i, (val, pct) in enumerate(pcts.items()):
                 ax.barh(
-                    0, pct, left=left,
+                    0,
+                    pct,
+                    left=left,
                     color=colors[i % len(colors)],
                     edgecolor="white",
                     label=f"{int(val)}" if ax == axes[0] else "",
                 )
                 if pct > 5:
                     ax.text(
-                        left + pct / 2, 0, f"{pct:.0f}%",
-                        ha="center", va="center", fontsize=9,
+                        left + pct / 2,
+                        0,
+                        f"{pct:.0f}%",
+                        ha="center",
+                        va="center",
+                        fontsize=9,
                     )
                 left += pct
             display_name = labels.get(col, col) if labels else col
@@ -103,8 +111,10 @@ class SurveyEDA:
 
         if axes[0].get_legend_handles_labels()[1]:
             axes[0].legend(
-                loc="upper right", title="Response",
-                ncol=len(colors), fontsize=8,
+                loc="upper right",
+                title="Response",
+                ncol=len(colors),
+                fontsize=8,
             )
 
         plt.suptitle("Likert Scale Response Distribution", fontsize=14)
@@ -124,9 +134,17 @@ class SurveyEDA:
 
         fig, ax = plt.subplots(figsize=(10, 8))
         sns.heatmap(
-            corr, mask=mask, annot=True, fmt=".2f",
-            cmap="RdBu_r", center=0, vmin=-1, vmax=1,
-            square=True, linewidths=0.5, ax=ax,
+            corr,
+            mask=mask,
+            annot=True,
+            fmt=".2f",
+            cmap="RdBu_r",
+            center=0,
+            vmin=-1,
+            vmax=1,
+            square=True,
+            linewidths=0.5,
+            ax=ax,
         )
         ax.set_title(f"{method.title()} Correlation Matrix", fontsize=14)
         plt.tight_layout()
@@ -148,16 +166,21 @@ class SurveyEDA:
             ax.set_ylabel("Count")
             # Add percentage labels
             total = counts.sum()
-            for i, (val, count) in enumerate(counts.items()):
+            for i, (_val, count) in enumerate(counts.items()):
                 ax.text(
-                    i, count + total * 0.01,
+                    i,
+                    count + total * 0.01,
                     f"{count / total * 100:.1f}%",
-                    ha="center", fontsize=9,
+                    ha="center",
+                    fontsize=9,
                 )
         elif plot_type == "pie":
             counts.plot(
-                kind="pie", ax=ax, autopct="%1.1f%%",
-                startangle=90, colors=sns.color_palette("Set2"),
+                kind="pie",
+                ax=ax,
+                autopct="%1.1f%%",
+                startangle=90,
+                colors=sns.color_palette("Set2"),
             )
             ax.set_ylabel("")
 
@@ -178,18 +201,30 @@ class SurveyEDA:
 
         if plot_type == "box":
             sns.boxplot(
-                data=self.data, x=group_col, y=value_col,
-                ax=ax, palette="Set2",
+                data=self.data,
+                x=group_col,
+                y=value_col,
+                ax=ax,
+                palette="Set2",
             )
         elif plot_type == "violin":
             sns.violinplot(
-                data=self.data, x=group_col, y=value_col,
-                ax=ax, palette="Set2", inner="quartile",
+                data=self.data,
+                x=group_col,
+                y=value_col,
+                ax=ax,
+                palette="Set2",
+                inner="quartile",
             )
         elif plot_type == "strip":
             sns.stripplot(
-                data=self.data, x=group_col, y=value_col,
-                ax=ax, palette="Set2", alpha=0.5, jitter=True,
+                data=self.data,
+                x=group_col,
+                y=value_col,
+                ax=ax,
+                palette="Set2",
+                alpha=0.5,
+                jitter=True,
             )
 
         ax.set_title(f"{value_col} by {group_col}", fontsize=14)
@@ -224,8 +259,8 @@ class SurveyEDA:
     @timer
     def full_eda_report(
         self,
-        likert_cols: Optional[list[str]] = None,
-        demographic_cols: Optional[list[str]] = None,
+        likert_cols: list[str] | None = None,
+        demographic_cols: list[str] | None = None,
     ) -> pd.DataFrame:
         """Run a full automated EDA pipeline."""
         logger.info("Running full EDA report...")

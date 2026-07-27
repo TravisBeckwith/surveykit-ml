@@ -3,7 +3,6 @@ Tests for survey_toolkit.config module.
 """
 
 import pytest
-from pathlib import Path
 
 
 class TestConfig:
@@ -12,6 +11,7 @@ class TestConfig:
     def setup_method(self):
         """Reset config before each test."""
         from survey_toolkit.config import reset_config
+
         reset_config()
 
     def test_load_default_config(self):
@@ -78,12 +78,14 @@ class TestConfig:
         assert get("cleaner.straightliner_threshold") == 0.95
 
     def test_load_with_overrides(self):
-        from survey_toolkit.config import load_config, get
+        from survey_toolkit.config import get, load_config
 
-        load_config(overrides={
-            "stats": {"significance_level": 0.01},
-            "ml": {"cv_folds": 10},
-        })
+        load_config(
+            overrides={
+                "stats": {"significance_level": 0.01},
+                "ml": {"cv_folds": 10},
+            }
+        )
 
         assert get("stats.significance_level") == 0.01
         assert get("ml.cv_folds") == 10
@@ -91,7 +93,7 @@ class TestConfig:
         assert get("general.random_state") == 42
 
     def test_update_config(self):
-        from survey_toolkit.config import load_config, update_config, get
+        from survey_toolkit.config import get, load_config, update_config
 
         load_config()
         update_config({"ml": {"cv_folds": 20}})
@@ -101,7 +103,7 @@ class TestConfig:
         assert get("stats.significance_level") == 0.05
 
     def test_reset_config(self):
-        from survey_toolkit.config import load_config, update_config, reset_config, get
+        from survey_toolkit.config import get, load_config, reset_config, update_config
 
         load_config()
         update_config({"ml": {"cv_folds": 99}})
@@ -111,13 +113,12 @@ class TestConfig:
         assert get("ml.cv_folds") == 5  # Back to default
 
     def test_load_custom_config_file(self, tmp_path):
-        from survey_toolkit.config import load_config, get
+        from survey_toolkit.config import get, load_config
 
         # Create custom config
         custom_config = tmp_path / "custom.yml"
         custom_config.write_text(
-            "stats:\n  significance_level: 0.001\n"
-            "ml:\n  cv_folds: 15\n"
+            "stats:\n  significance_level: 0.001\n" "ml:\n  cv_folds: 15\n"
         )
 
         load_config(config_path=str(custom_config))
@@ -146,10 +147,10 @@ class TestConfig:
         }
         result = _deep_merge(base, override)
 
-        assert result["a"]["b"] == 99   # Overridden
-        assert result["a"]["c"] == 2    # Preserved
-        assert result["d"] == 3         # Preserved
-        assert result["e"] == 4         # Added
+        assert result["a"]["b"] == 99  # Overridden
+        assert result["a"]["c"] == 2  # Preserved
+        assert result["d"] == 3  # Preserved
+        assert result["e"] == 4  # Added
 
     def test_deep_merge_does_not_mutate(self):
         from survey_toolkit.config import _deep_merge
@@ -223,6 +224,7 @@ class TestConfigIntegration:
 
     def setup_method(self):
         from survey_toolkit.config import reset_config
+
         reset_config()
 
     def test_config_with_stats(self):

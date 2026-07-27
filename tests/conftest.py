@@ -2,17 +2,18 @@
 Shared test fixtures for the Survey ML Toolkit test suite.
 """
 
-import pytest
-import pandas as pd
-import numpy as np
-from pathlib import Path
-import tempfile
 import shutil
+import tempfile
+from pathlib import Path
 
+import numpy as np
+import pandas as pd
+import pytest
 
 # ============================================================
 # Directories
 # ============================================================
+
 
 @pytest.fixture(scope="session")
 def test_output_dir():
@@ -31,6 +32,7 @@ def tmp_dir(tmp_path):
 # ============================================================
 # Sample DataFrames
 # ============================================================
+
 
 @pytest.fixture
 def sample_survey_df():
@@ -55,9 +57,7 @@ def sample_survey_df():
             size=n,
             p=[0.20, 0.40, 0.30, 0.10],
         ),
-        "duration_seconds": np.clip(
-            rng.normal(600, 200, size=n).astype(int), 30, 3600
-        ),
+        "duration_seconds": np.clip(rng.normal(600, 200, size=n).astype(int), 30, 3600),
     }
 
     # Likert items with some correlation structure
@@ -72,9 +72,7 @@ def sample_survey_df():
     ).astype(int)
 
     # Satisfaction group (target)
-    likert_mean = np.mean(
-        [data[f"q{i}"] for i in range(1, 11)], axis=0
-    )
+    likert_mean = np.mean([data[f"q{i}"] for i in range(1, 11)], axis=0)
     data["satisfaction_group"] = pd.cut(
         likert_mean,
         bins=[0, 2.5, 3.5, 5.1],
@@ -162,6 +160,7 @@ def text_likert_df():
 # Sample Files
 # ============================================================
 
+
 @pytest.fixture
 def sample_csv_file(tmp_dir, sample_survey_df):
     """Save sample survey to a CSV file and return path."""
@@ -190,6 +189,7 @@ def sample_json_file(tmp_dir, sample_survey_df):
 # Clean DataFrames (pre-processed)
 # ============================================================
 
+
 @pytest.fixture
 def clean_survey_df(sample_survey_df, likert_columns):
     """Return a pre-cleaned survey DataFrame (no NaN in Likert cols)."""
@@ -197,8 +197,7 @@ def clean_survey_df(sample_survey_df, likert_columns):
 
     cleaner = SurveyCleaner(sample_survey_df)
     return (
-        cleaner
-        .remove_speeders("duration_seconds", min_seconds=60)
+        cleaner.remove_speeders("duration_seconds", min_seconds=60)
         .remove_straightliners(likert_columns, threshold=0.95)
         .handle_missing(strategy="median")
         .get_clean_data()
@@ -208,6 +207,7 @@ def clean_survey_df(sample_survey_df, likert_columns):
 # ============================================================
 # Helper Assertions
 # ============================================================
+
 
 @pytest.fixture
 def assert_valid_result():

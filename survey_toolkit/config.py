@@ -4,11 +4,11 @@ Configuration management for the Survey ML Toolkit.
 Loads default settings from config.yml and allows user overrides.
 """
 
-import yaml
-from pathlib import Path
-from typing import Any, Optional
 from copy import deepcopy
+from pathlib import Path
+from typing import Any
 
+import yaml
 
 # Path to default config
 _DEFAULT_CONFIG_PATH = Path(__file__).parent / "config.yml"
@@ -35,11 +35,7 @@ def _deep_merge(base: dict, override: dict) -> dict:
     """
     result = deepcopy(base)
     for key, value in override.items():
-        if (
-            key in result
-            and isinstance(result[key], dict)
-            and isinstance(value, dict)
-        ):
+        if key in result and isinstance(result[key], dict) and isinstance(value, dict):
             result[key] = _deep_merge(result[key], value)
         else:
             result[key] = deepcopy(value)
@@ -47,8 +43,8 @@ def _deep_merge(base: dict, override: dict) -> dict:
 
 
 def load_config(
-    config_path: Optional[str] = None,
-    overrides: Optional[dict] = None,
+    config_path: str | None = None,
+    overrides: dict | None = None,
 ) -> dict:
     """
     Load toolkit configuration.
@@ -74,7 +70,7 @@ def load_config(
 
     # Load defaults
     if _DEFAULT_CONFIG_PATH.exists():
-        with open(_DEFAULT_CONFIG_PATH, "r", encoding="utf-8") as f:
+        with open(_DEFAULT_CONFIG_PATH, encoding="utf-8") as f:
             config = yaml.safe_load(f) or {}
     else:
         config = _get_hardcoded_defaults()
@@ -83,7 +79,7 @@ def load_config(
     if config_path:
         user_path = Path(config_path)
         if user_path.exists():
-            with open(user_path, "r", encoding="utf-8") as f:
+            with open(user_path, encoding="utf-8") as f:
                 user_config = yaml.safe_load(f) or {}
             config = _deep_merge(config, user_config)
         else:
@@ -97,7 +93,7 @@ def load_config(
     return config
 
 
-def get_config(section: Optional[str] = None) -> dict:
+def get_config(section: str | None = None) -> dict:
     """
     Get the current configuration (or a section of it).
 
