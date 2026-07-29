@@ -59,6 +59,7 @@ EXTRAS_REQUIRE = {
         "pytest>=7.4",
         "pytest-cov>=4.1",
         "pytest-mock>=3.11",
+        "pytest-timeout>=2.1",
         "black>=23.7",
         "ruff>=0.0.280",
         "mypy>=1.4",
