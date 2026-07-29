@@ -144,7 +144,7 @@ class TestFullPipeline:
         output = report.generate(output_path=report_path, auto_sections=False)
 
         assert Path(output).exists()
-        content = Path(output).read_text()
+        content = Path(output).read_text(encoding="utf-8")
         assert "Integration Test Report" in content
         assert "Reliability" in content
         assert "Model Comparison" in content
