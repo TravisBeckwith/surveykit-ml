@@ -2,15 +2,18 @@
 Module for loading and validating survey data from multiple formats.
 """
 
-import pandas as pd
 from pathlib import Path
+from typing import ClassVar
+
+import pandas as pd
+
 from survey_toolkit.utils import logger, timer
 
 
 class SurveyLoader:
     """Load survey data from various file formats with validation."""
 
-    SUPPORTED_FORMATS = [".csv", ".xlsx", ".json", ".sav", ".dta"]
+    SUPPORTED_FORMATS: ClassVar[list[str]] = [".csv", ".xlsx", ".json", ".sav", ".dta"]
 
     def __init__(self, filepath: str):
         self.filepath = Path(filepath)
@@ -52,12 +55,12 @@ class SurveyLoader:
         """Load SPSS .sav files."""
         try:
             import pyreadstat
-        except ImportError:
+        except ImportError as err:
             raise ImportError(
                 "pyreadstat is required for SPSS files. "
                 "Install with: pip install survey-ml-toolkit[io]"
-            )
-        df, meta = pyreadstat.read_sav(str(filepath), **kwargs)
+            ) from err
+        df, _meta = pyreadstat.read_sav(str(filepath), **kwargs)
         return df
 
     def _collect_metadata(self):
@@ -67,18 +70,15 @@ class SurveyLoader:
             "n_questions": len(self.data.columns),
             "columns": list(self.data.columns),
             "dtypes": {
-                col: str(dtype)
-                for col, dtype in self.data.dtypes.to_dict().items()
+                col: str(dtype) for col, dtype in self.data.dtypes.to_dict().items()
             },
             "missing_pct": {
                 col: round(pct, 2)
-                for col, pct in (
-                    self.data.isnull().sum() / len(self.data) * 100
-                ).to_dict().items()
+                for col, pct in (self.data.isnull().sum() / len(self.data) * 100)
+                .to_dict()
+                .items()
             },
-            "memory_usage_mb": round(
-                self.data.memory_usage(deep=True).sum() / 1e6, 2
-            ),
+            "memory_usage_mb": round(self.data.memory_usage(deep=True).sum() / 1e6, 2),
         }
 
     def summary(self) -> dict:

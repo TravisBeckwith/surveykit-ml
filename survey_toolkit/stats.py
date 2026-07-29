@@ -2,11 +2,13 @@
 Statistical tests commonly used in survey research.
 """
 
-import pandas as pd
+from typing import Any
+
 import numpy as np
+import pandas as pd
 from scipy import stats
 from statsmodels.stats.multicomp import pairwise_tukeyhsd
-from typing import Optional
+
 from survey_toolkit.utils import logger, timer
 
 
@@ -45,15 +47,12 @@ class SurveyStats:
         item_variances = subset.var(axis=0, ddof=1).sum()
         total_variance = subset.sum(axis=1).var(ddof=1)
 
-        alpha = (n_items / (n_items - 1)) * (
-            1 - item_variances / total_variance
-        )
+        alpha = (n_items / (n_items - 1)) * (1 - item_variances / total_variance)
 
         # Item-total correlations
         total = subset.sum(axis=1)
         item_total_corr = {
-            col: round(subset[col].corr(total - subset[col]), 4)
-            for col in columns
+            col: round(subset[col].corr(total - subset[col]), 4) for col in columns
         }
 
         # Alpha if item deleted
@@ -68,12 +67,21 @@ class SurveyStats:
             alpha_if_deleted[col] = round(a, 4)
 
         interpretation = (
-            "Excellent" if alpha >= 0.9 else
-            "Good" if alpha >= 0.8 else
-            "Acceptable" if alpha >= 0.7 else
-            "Questionable" if alpha >= 0.6 else
-            "Poor" if alpha >= 0.5 else
-            "Unacceptable"
+            "Excellent"
+            if alpha >= 0.9
+            else (
+                "Good"
+                if alpha >= 0.8
+                else (
+                    "Acceptable"
+                    if alpha >= 0.7
+                    else (
+                        "Questionable"
+                        if alpha >= 0.6
+                        else "Poor" if alpha >= 0.5 else "Unacceptable"
+                    )
+                )
+            )
         )
 
         result = {
@@ -121,8 +129,7 @@ class SurveyStats:
             Test results with statistic, p-value, effect size.
         """
         groups = [
-            group[variable].dropna().values
-            for _, group in self.data.groupby(group_col)
+            group[variable].dropna().values for _, group in self.data.groupby(group_col)
         ]
         group_names = list(self.data[group_col].dropna().unique())
         n_groups = len(groups)
@@ -156,26 +163,20 @@ class SurveyStats:
 
         # Run selected test
         if test == "t-test":
-            stat, p = stats.ttest_ind(
-                groups[0], groups[1], equal_var=equal_var
-            )
+            stat, p = stats.ttest_ind(groups[0], groups[1], equal_var=equal_var)
             pooled_std = np.sqrt(
-                (np.std(groups[0], ddof=1) ** 2
-                 + np.std(groups[1], ddof=1) ** 2) / 2
+                (np.std(groups[0], ddof=1) ** 2 + np.std(groups[1], ddof=1) ** 2) / 2
             )
             effect_size = (
                 (np.mean(groups[0]) - np.mean(groups[1])) / pooled_std
-                if pooled_std > 0 else 0
+                if pooled_std > 0
+                else 0
             )
             effect_name = "Cohen's d"
-            test_name = "Independent t-test" + (
-                " (Welch's)" if not equal_var else ""
-            )
+            test_name = "Independent t-test" + (" (Welch's)" if not equal_var else "")
 
         elif test == "mann-whitney":
-            stat, p = stats.mannwhitneyu(
-                groups[0], groups[1], alternative="two-sided"
-            )
+            stat, p = stats.mannwhitneyu(groups[0], groups[1], alternative="two-sided")
             n1, n2 = len(groups[0]), len(groups[1])
             effect_size = 1 - (2 * stat) / (n1 * n2)
             effect_name = "Rank-biserial r"
@@ -184,12 +185,8 @@ class SurveyStats:
         elif test == "anova":
             stat, p = stats.f_oneway(*groups)
             grand_mean = np.mean(np.concatenate(groups))
-            ss_between = sum(
-                len(g) * (np.mean(g) - grand_mean) ** 2 for g in groups
-            )
-            ss_total = sum(
-                np.sum((g - grand_mean) ** 2) for g in groups
-            )
+            ss_between = sum(len(g) * (np.mean(g) - grand_mean) ** 2 for g in groups)
+            ss_total = sum(np.sum((g - grand_mean) ** 2) for g in groups)
             effect_size = ss_between / ss_total if ss_total > 0 else 0
             effect_name = "Eta-squared"
             test_name = "One-way ANOVA"
@@ -219,7 +216,7 @@ class SurveyStats:
                     "std": round(np.std(g, ddof=1), 4),
                     "n": len(g),
                 }
-                for name, g in zip(group_names, groups)
+                for name, g in zip(group_names, groups, strict=True)
             },
             "normality_assumed": is_normal,
             "equal_variance": equal_var,
@@ -228,9 +225,7 @@ class SurveyStats:
         # Post-hoc for 3+ groups
         if n_groups > 2 and p < 0.05 and is_normal:
             melted = self.data[[variable, group_col]].dropna()
-            posthoc = pairwise_tukeyhsd(
-                melted[variable], melted[group_col], alpha=0.05
-            )
+            posthoc = pairwise_tukeyhsd(melted[variable], melted[group_col], alpha=0.05)
             result["posthoc"] = str(posthoc)
             result["posthoc_summary"] = pd.DataFrame(
                 posthoc._results_table.data[1:],
@@ -266,6 +261,11 @@ class SurveyStats:
         """
         subset = self.data[columns].dropna()
         n = len(subset)
+
+        valid_methods = ("pearson", "spearman", "kendall")
+        if method not in valid_methods:
+            raise ValueError(f"Unknown method: {method}")
+
         corr = subset.corr(method=method)
 
         # Calculate p-values
@@ -292,12 +292,14 @@ class SurveyStats:
         for i, col1 in enumerate(columns):
             for j, col2 in enumerate(columns):
                 if i < j and p_values.iloc[i, j] < 0.05:
-                    sig_pairs.append({
-                        "var1": col1,
-                        "var2": col2,
-                        "correlation": round(corr.iloc[i, j], 4),
-                        "p_value": round(p_values.iloc[i, j], 6),
-                    })
+                    sig_pairs.append(
+                        {
+                            "var1": col1,
+                            "var2": col2,
+                            "correlation": round(corr.iloc[i, j], 4),
+                            "p_value": round(p_values.iloc[i, j], 6),
+                        }
+                    )
 
         result = {
             "correlation_matrix": corr,
@@ -317,7 +319,7 @@ class SurveyStats:
     def factor_analysis(
         self,
         columns: list[str],
-        n_factors: Optional[int] = None,
+        n_factors: int | None = None,
         rotation: str = "varimax",
         method: str = "ml",
     ) -> dict:
@@ -346,11 +348,11 @@ class SurveyStats:
                 calculate_bartlett_sphericity,
                 calculate_kmo,
             )
-        except ImportError:
+        except ImportError as err:
             raise ImportError(
                 "factor-analyzer is required for factor analysis. "
                 "Install with: pip install factor-analyzer"
-            )
+            ) from err
 
         subset = self.data[columns].dropna()
 
@@ -362,7 +364,7 @@ class SurveyStats:
 
         # Adequacy tests
         chi_sq, p_bartlett = calculate_bartlett_sphericity(subset)
-        kmo_per_item, kmo_overall = calculate_kmo(subset)
+        _kmo_per_item, kmo_overall = calculate_kmo(subset)
 
         # Determine number of factors
         if n_factors is None:
@@ -372,9 +374,7 @@ class SurveyStats:
             logger.info(f"Auto-detected {n_factors} factors (Kaiser criterion)")
 
         # Fit
-        fa = FactorAnalyzer(
-            n_factors=n_factors, rotation=rotation, method=method
-        )
+        fa = FactorAnalyzer(n_factors=n_factors, rotation=rotation, method=method)
         fa.fit(subset)
 
         loadings = pd.DataFrame(
@@ -399,12 +399,21 @@ class SurveyStats:
             "kmo": round(kmo_overall, 4),
             "kmo_adequate": kmo_overall >= 0.6,
             "kmo_interpretation": (
-                "Marvelous" if kmo_overall >= 0.9 else
-                "Meritorious" if kmo_overall >= 0.8 else
-                "Middling" if kmo_overall >= 0.7 else
-                "Mediocre" if kmo_overall >= 0.6 else
-                "Miserable" if kmo_overall >= 0.5 else
-                "Unacceptable"
+                "Marvelous"
+                if kmo_overall >= 0.9
+                else (
+                    "Meritorious"
+                    if kmo_overall >= 0.8
+                    else (
+                        "Middling"
+                        if kmo_overall >= 0.7
+                        else (
+                            "Mediocre"
+                            if kmo_overall >= 0.6
+                            else "Miserable" if kmo_overall >= 0.5 else "Unacceptable"
+                        )
+                    )
+                )
             ),
             "n_factors": n_factors,
             "rotation": rotation,
@@ -455,14 +464,17 @@ class SurveyStats:
             "dof": dof,
             "cramers_v": round(cramers_v, 4),
             "effect_size_interpretation": (
-                "Large" if cramers_v >= 0.5 else
-                "Medium" if cramers_v >= 0.3 else
-                "Small" if cramers_v >= 0.1 else
-                "Negligible"
+                "Large"
+                if cramers_v >= 0.5
+                else (
+                    "Medium"
+                    if cramers_v >= 0.3
+                    else "Small" if cramers_v >= 0.1 else "Negligible"
+                )
             ),
             "significant": p < 0.05,
             "contingency_table": contingency,
-                        "expected_frequencies": pd.DataFrame(
+            "expected_frequencies": pd.DataFrame(
                 np.round(expected, 2),
                 index=contingency.index,
                 columns=contingency.columns,
@@ -480,8 +492,7 @@ class SurveyStats:
 
         self.results["chi_square"] = result
         logger.info(
-            f"Chi-Square: χ²={chi2:.4f}, p={p:.6f}, "
-            f"Cramér's V={cramers_v:.4f}"
+            f"Chi-Square: χ²={chi2:.4f}, p={p:.6f}, " f"Cramér's V={cramers_v:.4f}"
         )
         return result
 
@@ -492,8 +503,8 @@ class SurveyStats:
     def proportion_test(
         self,
         column: str,
-        value: any,
-        group_col: Optional[str] = None,
+        value: Any,
+        group_col: str | None = None,
     ) -> dict:
         """
         Test proportions — one-sample or two-sample z-test.
@@ -502,7 +513,7 @@ class SurveyStats:
         ----------
         column : str
             Column to test proportions on.
-        value : any
+        value : Any
             The value to count as a "success."
         group_col : str, optional
             If provided, compares proportions between two groups.
@@ -544,7 +555,7 @@ class SurveyStats:
                 "groups": group_names,
                 "proportions": {
                     str(name): round(c / t, 4)
-                    for name, c, t in zip(group_names, counts, totals)
+                    for name, c, t in zip(group_names, counts, totals, strict=True)
                 },
                 "statistic": round(stat, 4),
                 "p_value": round(p, 6),
@@ -578,9 +589,11 @@ class SurveyStats:
         pd.DataFrame
             Multi-indexed descriptive statistics table.
         """
-        result = self.data.groupby(group_col)[variables].agg(
-            ["count", "mean", "median", "std", "min", "max"]
-        ).round(4)
+        result = (
+            self.data.groupby(group_col)[variables]
+            .agg(["count", "mean", "median", "std", "min", "max"])
+            .round(4)
+        )
         self.results["descriptives_by_group"] = result
         return result
 
