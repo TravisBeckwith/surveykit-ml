@@ -8,6 +8,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Fixed
+- **CI test job failure: `unrecognized arguments: --timeout=300`**. The
+  workflow passes `--timeout=<n>` to `pytest` in four places (fast tests,
+  slow tests, full-suite coverage, integration tests), but the
+  `pytest-timeout` plugin that provides that flag was never installed —
+  it wasn't in `requirements.txt`, `setup.py`, or the `dev` extra in
+  `pyproject.toml`. Added `pytest-timeout>=2.1` to the `dev` extras in
+  both `pyproject.toml` and `setup.py`.
+- **Coverage gate failing on intentionally-partial test runs**. The
+  project sets `[tool.coverage.report] fail_under = 80`, and pytest's
+  `addopts` unconditionally enables `--cov=survey_toolkit` for every
+  invocation. That means the "Run fast tests" (`-m "not slow"`), "Run
+  slow tests" (`-m "slow"`), and "Run integration tests"
+  (`tests/test_integration.py` only) CI steps were each independently
+  enforcing an 80% coverage threshold against a deliberately small
+  subset of the suite — the slow-tests subset only reaches ~65%
+  coverage and the integration-only subset ~67%, so those steps would
+  fail purely from running fewer tests, regardless of whether the tests
+  themselves pass. Added `--no-cov` to those three CI steps; coverage
+  enforcement now applies only where it belongs — the dedicated
+  `coverage` job, which runs the full suite.
+
 - **CI lint job failures**: `black --check` was failing on all 22 source/test
   files (never actually run against the codebase before). Ran `black` to
   reformat everything; `black --check` now passes.
