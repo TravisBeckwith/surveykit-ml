@@ -2,28 +2,28 @@
 Machine Learning models tailored for survey data analysis.
 """
 
-import pandas as pd
 import numpy as np
-from sklearn.model_selection import (
-    cross_val_score,
-    StratifiedKFold,
-    GridSearchCV,
-)
-from sklearn.preprocessing import StandardScaler, LabelEncoder
-from sklearn.linear_model import LogisticRegression
-from sklearn.ensemble import (
-    RandomForestClassifier,
-    GradientBoostingClassifier,
-)
+import pandas as pd
 from sklearn.cluster import KMeans
+from sklearn.decomposition import PCA
+from sklearn.ensemble import (
+    GradientBoostingClassifier,
+    RandomForestClassifier,
+)
+from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import (
     classification_report,
-    silhouette_score,
     confusion_matrix,
+    silhouette_score,
+)
+from sklearn.model_selection import (
+    GridSearchCV,
+    StratifiedKFold,
+    cross_val_score,
 )
 from sklearn.pipeline import Pipeline
-from sklearn.decomposition import PCA
-from typing import Optional
+from sklearn.preprocessing import LabelEncoder, StandardScaler
+
 from survey_toolkit.utils import logger, timer
 
 
@@ -68,12 +68,12 @@ class SurveyClassifier:
         tuple
             (X, y) DataFrames.
         """
-        subset = self.data[feature_cols + [target_col]].dropna()
+        subset = self.data[[*feature_cols, target_col]].dropna()
         X = subset[feature_cols]
         y = subset[target_col]
 
         # Encode target if categorical
-        if y.dtype == "object" or y.dtype.name == "category":
+        if pd.api.types.is_string_dtype(y) or y.dtype.name == "category":
             self.label_encoder = LabelEncoder()
             y = pd.Series(
                 self.label_encoder.fit_transform(y),
@@ -82,7 +82,7 @@ class SurveyClassifier:
             )
             logger.info(
                 f"Encoded target classes: "
-                f"{dict(zip(self.label_encoder.classes_, range(len(self.label_encoder.classes_))))}"
+                f"{dict(zip(self.label_encoder.classes_, range(len(self.label_encoder.classes_)), strict=True))}"
             )
 
         # Encode categorical features
@@ -126,12 +126,8 @@ class SurveyClassifier:
 
         # Try to import xgboost, skip if not available
         models = {
-            "Logistic Regression": LogisticRegression(
-                max_iter=1000, random_state=42
-            ),
-            "Random Forest": RandomForestClassifier(
-                n_estimators=100, random_state=42
-            ),
+            "Logistic Regression": LogisticRegression(max_iter=1000, random_state=42),
+            "Random Forest": RandomForestClassifier(n_estimators=100, random_state=42),
             "Gradient Boosting": GradientBoostingClassifier(
                 n_estimators=100, random_state=42
             ),
@@ -139,6 +135,7 @@ class SurveyClassifier:
 
         try:
             import xgboost as xgb
+
             models["XGBoost"] = xgb.XGBClassifier(
                 n_estimators=100,
                 random_state=42,
@@ -151,9 +148,7 @@ class SurveyClassifier:
                 "Install with: pip install survey-ml-toolkit[ml]"
             )
 
-        cv = StratifiedKFold(
-            n_splits=cv_folds, shuffle=True, random_state=42
-        )
+        cv = StratifiedKFold(n_splits=cv_folds, shuffle=True, random_state=42)
         results = []
 
         for name, model in models.items():
@@ -168,25 +163,24 @@ class SurveyClassifier:
                 scores = cross_val_score(
                     pipeline, self.X, self.y, cv=cv, scoring=scoring
                 )
-                results.append({
-                    "model": name,
-                    "mean_score": round(scores.mean(), 4),
-                    "std_score": round(scores.std(), 4),
-                    "min_score": round(scores.min(), 4),
-                    "max_score": round(scores.max(), 4),
-                    "scores": scores.tolist(),
-                })
+                results.append(
+                    {
+                        "model": name,
+                        "mean_score": round(scores.mean(), 4),
+                        "std_score": round(scores.std(), 4),
+                        "min_score": round(scores.min(), 4),
+                        "max_score": round(scores.max(), 4),
+                        "scores": scores.tolist(),
+                    }
+                )
                 self.models[name] = pipeline
                 logger.info(
-                    f"  {name}: {scores.mean():.4f} "
-                    f"(+/- {scores.std():.4f})"
+                    f"  {name}: {scores.mean():.4f} " f"(+/- {scores.std():.4f})"
                 )
             except Exception as e:
                 logger.warning(f"  {name} failed: {e}")
 
-        results_df = pd.DataFrame(results).sort_values(
-            "mean_score", ascending=False
-        )
+        results_df = pd.DataFrame(results).sort_values("mean_score", ascending=False)
         self.results["model_comparison"] = results_df
 
         # Set best model
@@ -201,7 +195,7 @@ class SurveyClassifier:
 
     def get_classification_report(
         self,
-        model_name: Optional[str] = None,
+        model_name: str | None = None,
     ) -> dict:
         """
         Generate a full classification report for a fitted model.
@@ -216,11 +210,7 @@ class SurveyClassifier:
         dict
             Classification report with confusion matrix.
         """
-        model = (
-            self.models.get(model_name)
-            if model_name
-            else self.best_model
-        )
+        model = self.models.get(model_name) if model_name else self.best_model
         if model is None:
             raise ValueError("No model found. Run run_model_comparison() first.")
 
@@ -248,7 +238,7 @@ class SurveyClassifier:
     @timer
     def feature_importance(
         self,
-        model_name: Optional[str] = None,
+        model_name: str | None = None,
     ) -> pd.DataFrame:
         """
         Get feature importance using SHAP values.
@@ -265,17 +255,13 @@ class SurveyClassifier:
         """
         try:
             import shap
-        except ImportError:
+        except ImportError as err:
             raise ImportError(
                 "SHAP is required for feature importance. "
                 "Install with: pip install survey-ml-toolkit[ml]"
-            )
+            ) from err
 
-        model = (
-            self.models.get(model_name)
-            if model_name
-            else self.best_model
-        )
+        model = self.models.get(model_name) if model_name else self.best_model
         if model is None:
             raise ValueError("No model found. Run run_model_comparison() first.")
 
@@ -296,34 +282,42 @@ class SurveyClassifier:
 
         shap_values = explainer.shap_values(X_transformed)
 
-        # Handle multi-class SHAP values
+        # Handle multi-class SHAP values.
+        # Older SHAP versions return a list of per-class (n_samples, n_features)
+        # arrays for multiclass models; newer versions instead return a single
+        # (n_samples, n_features, n_classes) ndarray. Average absolute SHAP
+        # values over samples (and classes, if present) to get one importance
+        # value per feature.
         if isinstance(shap_values, list):
-            mean_shap = np.mean(
-                [np.abs(sv).mean(axis=0) for sv in shap_values], axis=0
-            )
+            mean_shap = np.mean([np.abs(sv).mean(axis=0) for sv in shap_values], axis=0)
+        elif isinstance(shap_values, np.ndarray) and shap_values.ndim == 3:
+            mean_shap = np.abs(shap_values).mean(axis=(0, 2))
         else:
             mean_shap = np.abs(shap_values).mean(axis=0)
 
-        importance_df = pd.DataFrame({
-            "feature": self.feature_names,
-            "mean_shap_value": mean_shap,
-        }).sort_values("mean_shap_value", ascending=False).reset_index(drop=True)
+        importance_df = (
+            pd.DataFrame(
+                {
+                    "feature": self.feature_names,
+                    "mean_shap_value": mean_shap,
+                }
+            )
+            .sort_values("mean_shap_value", ascending=False)
+            .reset_index(drop=True)
+        )
 
         # Add rank
         importance_df["rank"] = range(1, len(importance_df) + 1)
 
         self.results["feature_importance"] = importance_df
-        logger.info(
-            f"Top 5 features: "
-            f"{importance_df['feature'].head().tolist()}"
-        )
+        logger.info(f"Top 5 features: " f"{importance_df['feature'].head().tolist()}")
         return importance_df
 
     @timer
     def hyperparameter_tune(
         self,
         model_name: str = "Random Forest",
-        param_grid: Optional[dict] = None,
+        param_grid: dict | None = None,
         cv_folds: int = 5,
         scoring: str = "accuracy",
     ) -> dict:
@@ -393,9 +387,9 @@ class SurveyClassifier:
             "model": model_name,
             "best_params": grid_search.best_params_,
             "best_score": round(grid_search.best_score_, 4),
-            "cv_results_summary": pd.DataFrame(
-                grid_search.cv_results_
-            )[["params", "mean_test_score", "std_test_score", "rank_test_score"]]
+            "cv_results_summary": pd.DataFrame(grid_search.cv_results_)[
+                ["params", "mean_test_score", "std_test_score", "rank_test_score"]
+            ]
             .sort_values("rank_test_score")
             .head(10)
             .to_dict("records"),
@@ -406,8 +400,7 @@ class SurveyClassifier:
         self.models[self.best_model_name] = self.best_model
 
         logger.info(
-            f"Best score: {result['best_score']}, "
-            f"Params: {result['best_params']}"
+            f"Best score: {result['best_score']}, " f"Params: {result['best_params']}"
         )
         self.results["hyperparameter_tuning"] = result
         return result
@@ -546,8 +539,7 @@ class SurveySegmentation:
             inertias.append(round(kmeans.inertia_, 2))
             calinski_scores.append(round(cal, 2))
             logger.info(
-                f"  k={k}: silhouette={sil:.4f}, "
-                f"inertia={kmeans.inertia_:.0f}"
+                f"  k={k}: silhouette={sil:.4f}, " f"inertia={kmeans.inertia_:.0f}"
             )
 
         optimal_k = list(k_range)[np.argmax(silhouette_scores)]
@@ -561,7 +553,9 @@ class SurveySegmentation:
             "best_silhouette": max(silhouette_scores),
         }
         self.results["optimal_k"] = result
-        logger.info(f"Optimal k = {optimal_k} (silhouette = {max(silhouette_scores):.4f})")
+        logger.info(
+            f"Optimal k = {optimal_k} (silhouette = {max(silhouette_scores):.4f})"
+        )
         return result
 
     @timer
@@ -585,9 +579,7 @@ class SurveySegmentation:
         if self.X is None:
             raise ValueError("Call prepare_data() first.")
 
-        kmeans = KMeans(
-            n_clusters=n_clusters, random_state=42, n_init=10
-        )
+        kmeans = KMeans(n_clusters=n_clusters, random_state=42, n_init=10)
         self.labels = kmeans.fit_predict(self.X)
 
         # Build cluster profiles
@@ -595,14 +587,12 @@ class SurveySegmentation:
         profile_df["cluster"] = self.labels
 
         # Mean profiles
-        cluster_means = profile_df.groupby("cluster")[
-            self.feature_names
-        ].mean().round(4)
+        cluster_means = (
+            profile_df.groupby("cluster")[self.feature_names].mean().round(4)
+        )
 
         # Standard deviation profiles
-        cluster_stds = profile_df.groupby("cluster")[
-            self.feature_names
-        ].std().round(4)
+        cluster_stds = profile_df.groupby("cluster")[self.feature_names].std().round(4)
 
         # Cluster sizes
         sizes = pd.Series(self.labels).value_counts().sort_index()
@@ -611,9 +601,7 @@ class SurveySegmentation:
         self.results["cluster_stds"] = cluster_stds
         self.results["cluster_sizes"] = sizes.to_dict()
         self.results["n_clusters"] = n_clusters
-        self.results["silhouette"] = round(
-            silhouette_score(self.X, self.labels), 4
-        )
+        self.results["silhouette"] = round(silhouette_score(self.X, self.labels), 4)
 
         logger.info(
             f"Fit {n_clusters} clusters. "
@@ -626,9 +614,7 @@ class SurveySegmentation:
         """Return cluster labels aligned with the original data index."""
         if self.labels is None:
             raise ValueError("Call fit_clusters() first.")
-        return pd.Series(
-            self.labels, index=self.subset_index, name="cluster"
-        )
+        return pd.Series(self.labels, index=self.subset_index, name="cluster")
 
     def visualize_clusters(self) -> pd.DataFrame:
         """
@@ -645,11 +631,13 @@ class SurveySegmentation:
         pca = PCA(n_components=2)
         coords = pca.fit_transform(self.X)
 
-        viz_df = pd.DataFrame({
-            "PC1": coords[:, 0],
-            "PC2": coords[:, 1],
-            "cluster": self.labels,
-        })
+        viz_df = pd.DataFrame(
+            {
+                "PC1": coords[:, 0],
+                "PC2": coords[:, 1],
+                "cluster": self.labels,
+            }
+        )
 
         self.results["pca_variance"] = [
             round(v, 4) for v in pca.explained_variance_ratio_.tolist()

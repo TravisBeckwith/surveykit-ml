@@ -2,9 +2,9 @@
 Tests for survey_toolkit.ml_models module.
 """
 
-import pytest
-import pandas as pd
 import numpy as np
+import pandas as pd
+import pytest
 
 
 class TestSurveyClassifier:
@@ -28,7 +28,7 @@ class TestSurveyClassifier:
         from survey_toolkit.ml_models import SurveyClassifier
 
         clf = SurveyClassifier(clean_survey_df)
-        X, y = clf.prepare_data(
+        _X, y = clf.prepare_data(
             feature_cols=likert_columns,
             target_col="satisfaction_group",
         )
@@ -43,7 +43,7 @@ class TestSurveyClassifier:
         df["nps_binary"] = (df["nps_score"] >= 7).astype(int)
 
         clf = SurveyClassifier(df)
-        X, y = clf.prepare_data(
+        clf.prepare_data(
             feature_cols=likert_columns,
             target_col="nps_binary",
         )
@@ -79,9 +79,7 @@ class TestSurveyClassifier:
         assert clf.best_model is not None
 
     @pytest.mark.slow
-    def test_model_comparison_scores_valid(
-        self, clean_survey_df, likert_columns
-    ):
+    def test_model_comparison_scores_valid(self, clean_survey_df, likert_columns):
         from survey_toolkit.ml_models import SurveyClassifier
 
         clf = SurveyClassifier(clean_survey_df)
@@ -159,9 +157,7 @@ class TestSurveyClassifier:
         assert result["best_score"] > 0
 
     @pytest.mark.slow
-    def test_hyperparameter_tune_invalid_model(
-        self, clean_survey_df, likert_columns
-    ):
+    def test_hyperparameter_tune_invalid_model(self, clean_survey_df, likert_columns):
         from survey_toolkit.ml_models import SurveyClassifier
 
         clf = SurveyClassifier(clean_survey_df)
@@ -190,9 +186,7 @@ class TestSurveyClassifier:
         preds = clf.predict(new_data)
 
         assert len(preds) == 10
-        assert all(
-            p in ["Dissatisfied", "Neutral", "Satisfied"] for p in preds
-        )
+        assert all(p in ["Dissatisfied", "Neutral", "Satisfied"] for p in preds)
 
     @pytest.mark.slow
     def test_predict_proba(self, clean_survey_df, likert_columns):
@@ -221,9 +215,7 @@ class TestSurveyClassifier:
         with pytest.raises(ValueError, match="No model trained"):
             clf.predict(clean_survey_df[likert_columns].head(5))
 
-    def test_classification_report_before_training_raises(
-        self, clean_survey_df
-    ):
+    def test_classification_report_before_training_raises(self, clean_survey_df):
         from survey_toolkit.ml_models import SurveyClassifier
 
         clf = SurveyClassifier(clean_survey_df)
@@ -272,7 +264,7 @@ class TestSurveySegmentation:
         from survey_toolkit.ml_models import SurveySegmentation
 
         seg = SurveySegmentation(clean_survey_df)
-        X = seg.prepare_data(likert_columns, scale=False)
+        seg.prepare_data(likert_columns, scale=False)
         assert seg.scaler is None
 
     @pytest.mark.slow
@@ -360,9 +352,7 @@ class TestSurveySegmentation:
         assert "pca_variance" in seg.results
         assert len(seg.results["pca_variance"]) == 2
 
-    def test_visualize_before_fit_raises(
-        self, clean_survey_df, likert_columns
-    ):
+    def test_visualize_before_fit_raises(self, clean_survey_df, likert_columns):
         from survey_toolkit.ml_models import SurveySegmentation
 
         seg = SurveySegmentation(clean_survey_df)
@@ -392,9 +382,7 @@ class TestSurveySegmentation:
                 for s in row_sums:
                     assert abs(s - 1.0) < 0.01
 
-    def test_profile_before_fit_raises(
-        self, clean_survey_df, likert_columns
-    ):
+    def test_profile_before_fit_raises(self, clean_survey_df, likert_columns):
         from survey_toolkit.ml_models import SurveySegmentation
 
         seg = SurveySegmentation(clean_survey_df)

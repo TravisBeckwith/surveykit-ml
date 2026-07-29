@@ -2,9 +2,12 @@
 Module for cleaning and preprocessing survey data.
 """
 
-import pandas as pd
+from collections.abc import Callable
+from typing import Any
+
 import numpy as np
-from typing import Optional
+import pandas as pd
+
 from survey_toolkit.utils import logger
 
 
@@ -63,7 +66,7 @@ class SurveyCleaner:
 
     def remove_duplicates(
         self,
-        subset: Optional[list[str]] = None,
+        subset: list[str] | None = None,
         keep: str = "first",
     ) -> "SurveyCleaner":
         """Remove duplicate rows."""
@@ -77,8 +80,8 @@ class SurveyCleaner:
         self,
         strategy: str = "drop",
         threshold: float = 0.5,
-        fill_value: Optional[any] = None,
-        columns: Optional[list[str]] = None,
+        fill_value: Any | None = None,
+        columns: list[str] | None = None,
     ) -> "SurveyCleaner":
         """
         Handle missing data.
@@ -103,9 +106,9 @@ class SurveyCleaner:
             self.data[target_cols] = self.data[target_cols].fillna(fill_value)
 
         elif strategy == "median":
-            numeric_cols = self.data[target_cols].select_dtypes(
-                include=[np.number]
-            ).columns
+            numeric_cols = (
+                self.data[target_cols].select_dtypes(include=[np.number]).columns
+            )
             self.data[numeric_cols] = self.data[numeric_cols].fillna(
                 self.data[numeric_cols].median()
             )
@@ -119,8 +122,7 @@ class SurveyCleaner:
 
         elif strategy == "drop_cols":
             cols_to_drop = [
-                col for col in target_cols
-                if self.data[col].isnull().mean() > threshold
+                col for col in target_cols if self.data[col].isnull().mean() > threshold
             ]
             self.data = self.data.drop(columns=cols_to_drop)
             self._log(
@@ -130,9 +132,9 @@ class SurveyCleaner:
             return self
 
         elif strategy == "interpolate":
-            numeric_cols = self.data[target_cols].select_dtypes(
-                include=[np.number]
-            ).columns
+            numeric_cols = (
+                self.data[target_cols].select_dtypes(include=[np.number]).columns
+            )
             self.data[numeric_cols] = self.data[numeric_cols].interpolate()
 
         else:
@@ -147,7 +149,7 @@ class SurveyCleaner:
     def encode_likert(
         self,
         columns: list[str],
-        mapping: Optional[dict] = None,
+        mapping: dict | None = None,
     ) -> "SurveyCleaner":
         """Encode Likert scale text responses to numeric."""
         default_mapping = {
@@ -206,7 +208,7 @@ class SurveyCleaner:
     def add_computed_column(
         self,
         name: str,
-        func: callable,
+        func: Callable,
     ) -> "SurveyCleaner":
         """Add a new column based on a function applied to each row."""
         self.data[name] = self.data.apply(func, axis=1)
@@ -215,9 +217,7 @@ class SurveyCleaner:
 
     def get_clean_data(self) -> pd.DataFrame:
         """Return the cleaned dataframe."""
-        logger.info(
-            f"Cleaning complete: {self.original_shape} -> {self.data.shape}"
-        )
+        logger.info(f"Cleaning complete: {self.original_shape} -> {self.data.shape}")
         return self.data
 
     def get_log(self) -> list[dict]:
