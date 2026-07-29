@@ -14,8 +14,8 @@
     <a href="https://codecov.io/gh/TravisBeckwith/surveykit-ml">
       <img src="https://codecov.io/gh/TravisBeckwith/surveykit-ml/branch/main/graph/badge.svg" alt="Coverage">
     </a>
-    <a href="https://pypi.org/project/survey-ml-toolkit/">
-      <img src="https://badge.fury.io/py/survey-ml-toolkit.svg" alt="PyPI version">
+    <a href="https://github.com/TravisBeckwith/surveykit-ml/releases">
+      <img src="https://img.shields.io/github/v/tag/TravisBeckwith/surveykit-ml?label=release" alt="Latest release">
     </a>
     <a href="https://www.python.org/downloads/">
       <img src="https://img.shields.io/badge/python-3.10+-blue.svg" alt="Python 3.10+">
@@ -128,47 +128,57 @@ Whether you're a market researcher analyzing customer satisfaction, an academic 
 
 ##  Installation
 
+Not yet published to PyPI — install directly from GitHub for now.
+
 ### Basic Install
 
 ```bash
-pip install survey-ml-toolkit
+pip install git+https://github.com/TravisBeckwith/surveykit-ml.git
 ```
 
 ### With ML Features (XGBoost, SHAP)
 
 ```bash
-pip install "survey-ml-toolkit[ml]"
+pip install "survey-ml-toolkit[ml] @ git+https://github.com/TravisBeckwith/surveykit-ml.git"
 ```
 
 ### With Reporting (PDF export)
 
 ```bash
-pip install "survey-ml-toolkit[reporting]"
+pip install "survey-ml-toolkit[reporting] @ git+https://github.com/TravisBeckwith/surveykit-ml.git"
 ```
 
 ### With SPSS/Stata File Support
 
 ```bash
-pip install "survey-ml-toolkit[io]"
+pip install "survey-ml-toolkit[io] @ git+https://github.com/TravisBeckwith/surveykit-ml.git"
 ```
 
 ### With Interactive Dashboards
 
 ```bash
-pip install "survey-ml-toolkit[dashboard]"
+pip install "survey-ml-toolkit[dashboard] @ git+https://github.com/TravisBeckwith/surveykit-ml.git"
 ```
 
 ### Everything
 
 ```bash
-pip install "survey-ml-toolkit[all]"
+pip install "survey-ml-toolkit[all] @ git+https://github.com/TravisBeckwith/surveykit-ml.git"
+```
+
+### Pinning to a release
+
+Append `@<tag>` to install a specific version instead of the latest commit on the default branch:
+
+```bash
+pip install "git+https://github.com/TravisBeckwith/surveykit-ml.git@v1.0.0"
 ```
 
 ### Development Install
 
 ```bash
 git clone https://github.com/TravisBeckwith/surveykit-ml.git
-cd survey-ml-toolkit
+cd surveykit-ml
 pip install -e ".[full]"
 pre-commit install
 ```

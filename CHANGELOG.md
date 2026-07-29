@@ -7,7 +7,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- **Distribution: GitHub-only for now, not PyPI.** Updated `README.md`
+  install instructions to use `pip install git+https://...` (with `@tag`
+  pinning and `[extra]` support via PEP 508 direct references) instead of
+  `pip install survey-ml-toolkit`, since the package isn't published to
+  PyPI yet. Replaced the (previously broken/misleading) PyPI version
+  badge with a GitHub release badge. Also fixed a pre-existing typo in
+  the Development Install instructions (`cd survey-ml-toolkit` →
+  `cd surveykit-ml`, matching the actual `git clone` target directory).
+- **`release.yml` PyPI publishing disabled.** The workflow previously
+  attempted to publish to PyPI via Trusted Publishing on every version
+  tag — not appropriate while distribution is GitHub-only, and would
+  have failed outright since no Trusted Publisher is configured. The
+  `publish`/`test-publish` jobs are preserved as commented-out code with
+  setup instructions for when that's ready, rather than deleted.
+- **Fixed a separate, pre-existing `release.yml` bug** while restructuring
+  it: the old `publish` job never actually uploaded a `dist` artifact,
+  but `github-release` tried to download one anyway with
+  `continue-on-error: true` — meaning every GitHub Release ever created
+  by this workflow would have silently shipped with no wheel/sdist
+  attached. Added a dedicated `build` job that builds and uploads the
+  `dist` artifact, and pointed `github-release` at it. Also updated the
+  auto-generated release notes' install snippet to match the new
+  git-based install command.
+
 ### Fixed
+
 - **Windows CI failure: `UnicodeDecodeError` in report tests** (`test_generate_html`,
   `test_generate_table_of_contents`, `test_generate_no_toc_few_sections`, and
   the equivalent read in `test_integration.py`). `reporting.py` correctly
