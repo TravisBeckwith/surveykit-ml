@@ -7,6 +7,45 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- **Docs workflow failure: fallback never ran, upload step failed on
+  missing `docs/_build/html/`.** `docs.yml`'s "Build Sphinx docs" step
+  had `continue-on-error: true`, which means the step is reported as
+  successful even when `cd docs` fails (there's no `docs/` directory in
+  this repo) — so the old fallback step, gated on `if: failure()`, never
+  triggered, and `actions/upload-pages-artifact` then failed outright on
+  the missing directory. Changed the fallback to run unconditionally
+  (`if: always()`) with its own directory-existence check instead,
+  so it fires whether Sphinx fails, `docs/` is missing, or the build
+  step is skipped for any other reason. Added `id: build_sphinx` to the
+  build step for clearer log attribution. Verified locally: simulated
+  the exact failure (`cd docs` erroring in the absence of a `docs/`
+  directory) and confirmed the fallback step now produces a valid
+  `docs/_build/html/index.html` every time.
+
+- **`pyproject.toml` `full` extras missing `pytest-timeout`**: present in
+  `dev` but not in the separately-maintained `full` array, so
+  `pip install -e ".[full]"` didn't actually pull in the timeout plugin
+  even though `pip install -e ".[dev]"` did. Added it to `full` too.
+- **`setup.py` dependency floors drifted out of sync with
+  `pyproject.toml`** after several Dependabot version-bump PRs merged.
+  Dependabot only patches `pyproject.toml` (the PEP 621 file it scans),
+  so `setup.py`'s duplicate `INSTALL_REQUIRES`/`EXTRAS_REQUIRE` lists were
+  left pointing at older floors: `seaborn>=0.12` (should be `>=0.13.2`),
+  `shap>=0.42` (should be `>=0.49.1`), `pytest>=7.4` (should be
+  `>=9.0.3`), `black>=23.7` (should be `>=26.3.1`), `mypy>=1.4` (should be
+  `>=1.20.1`), `sphinx>=7.0` (should be `>=8.1.3`), `myst-parser>=2.0`
+  (should be `>=4.0.1`). Synced all of them to match. Note: `setup.py`'s
+  `all`/`full` extras are computed dynamically from its own dict, so they
+  didn't have the same static-duplication bug as `pyproject.toml`'s did.
+
+  Longer-term, maintaining dependency floors in two separate files
+  (`pyproject.toml` and `setup.py`) is what let this drift happen
+  silently — worth considering trimming `setup.py` down to a minimal
+  shim (or removing it) now that `pyproject.toml`'s `[project]` table is
+  the complete, working PEP 621 metadata source and `setuptools.build_meta`
+  doesn't require a `setup.py` to function.
+
 ### Changed
 - **Distribution: GitHub-only for now, not PyPI.** Updated `README.md`
   install instructions to use `pip install git+https://...` (with `@tag`

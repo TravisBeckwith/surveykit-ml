@@ -18,7 +18,7 @@ INSTALL_REQUIRES = [
     "scikit-learn>=1.3,<1.6",
     "statsmodels>=0.14",
     "matplotlib>=3.7",
-    "seaborn>=0.12",
+    "seaborn>=0.13.2",
     "factor-analyzer>=0.5",
     "pyyaml>=6.0",
     "openpyxl>=3.1",
@@ -30,7 +30,7 @@ EXTRAS_REQUIRE = {
     "ml": [
         "xgboost>=1.7",
         "imbalanced-learn>=0.11",
-        "shap>=0.42",
+        "shap>=0.49.1",
     ],
     # NLP for open-ended survey responses
     "nlp": [
@@ -56,22 +56,22 @@ EXTRAS_REQUIRE = {
     ],
     # Development & testing
     "dev": [
-        "pytest>=7.4",
+        "pytest>=9.0.3",
         "pytest-cov>=4.1",
         "pytest-mock>=3.11",
         "pytest-timeout>=2.1",
-        "black>=23.7",
+        "black>=26.3.1",
         "ruff>=0.0.280",
-        "mypy>=1.4",
+        "mypy>=1.20.1",
         "pre-commit>=3.3",
         "ipykernel>=6.25",
         "nbstripout>=0.6",
     ],
     # Documentation
     "docs": [
-        "sphinx>=7.0",
+        "sphinx>=8.1.3",
         "sphinx-rtd-theme>=1.2",
-        "myst-parser>=2.0",
+        "myst-parser>=4.0.1",
         "nbsphinx>=0.9",
     ],
 }
