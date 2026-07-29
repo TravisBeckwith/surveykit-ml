@@ -3,11 +3,12 @@ Report generation module for survey analysis results.
 Generates HTML and PDF reports from analysis outputs.
 """
 
-import pandas as pd
-import numpy as np
-from pathlib import Path
 from datetime import datetime
-from typing import Optional
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
+
 from survey_toolkit.utils import logger, timer
 
 
@@ -53,11 +54,13 @@ class ReportGenerator:
         section_type : str
             'text', 'table', 'figure', 'stats'.
         """
-        self.sections.append({
-            "title": title,
-            "content": content,
-            "type": section_type,
-        })
+        self.sections.append(
+            {
+                "title": title,
+                "content": content,
+                "type": section_type,
+            }
+        )
         return self
 
     def add_dataframe(
@@ -93,13 +96,17 @@ class ReportGenerator:
         for key, value in result.items():
             if isinstance(value, pd.DataFrame):
                 content += f"<tr><td><strong>{key}</strong></td>"
-                content += f"<td>{value.to_html(classes='table table-sm', border=0)}</td></tr>"
+                content += (
+                    f"<td>{value.to_html(classes='table table-sm', border=0)}</td></tr>"
+                )
             elif isinstance(value, dict):
                 formatted = "<ul>"
                 for k, v in value.items():
                     formatted += f"<li><strong>{k}:</strong> {v}</li>"
                 formatted += "</ul>"
-                content += f"<tr><td><strong>{key}</strong></td><td>{formatted}</td></tr>"
+                content += (
+                    f"<tr><td><strong>{key}</strong></td><td>{formatted}</td></tr>"
+                )
             elif isinstance(value, (list, np.ndarray)):
                 content += f"<tr><td><strong>{key}</strong></td><td>{value}</td></tr>"
             else:
@@ -107,11 +114,15 @@ class ReportGenerator:
                 display_val = str(value)
                 if key == "significant":
                     color = "green" if value else "red"
-                    display_val = f"<span style='color:{color};font-weight:bold'>{value}</span>"
+                    display_val = (
+                        f"<span style='color:{color};font-weight:bold'>{value}</span>"
+                    )
                 elif key == "p_value" and isinstance(value, (int, float)):
                     color = "green" if value < 0.05 else "red"
                     display_val = f"<span style='color:{color}'>{value}</span>"
-                content += f"<tr><td><strong>{key}</strong></td><td>{display_val}</td></tr>"
+                content += (
+                    f"<tr><td><strong>{key}</strong></td><td>{display_val}</td></tr>"
+                )
         content += "</table></div>"
         self.add_section(title, content, section_type="stats")
         return self
@@ -143,7 +154,7 @@ class ReportGenerator:
 
     def add_summary_statistics(
         self,
-        columns: Optional[list[str]] = None,
+        columns: list[str] | None = None,
     ) -> "ReportGenerator":
         """Add auto-generated summary statistics section."""
         cols = columns or self.data.select_dtypes(include=[np.number]).columns.tolist()
@@ -316,8 +327,8 @@ class ReportGenerator:
     @timer
     def generate(
         self,
-        columns: Optional[list[str]] = None,
-        title: Optional[str] = None,
+        columns: list[str] | None = None,
+        title: str | None = None,
         output_path: str = "outputs/report.html",
         auto_sections: bool = True,
     ) -> str:
@@ -351,11 +362,13 @@ class ReportGenerator:
             missing = self.data.isnull().sum()
             missing = missing[missing > 0]
             if not missing.empty:
-                missing_df = pd.DataFrame({
-                    "Column": missing.index,
-                    "Missing Count": missing.values,
-                    "Missing %": (missing.values / len(self.data) * 100).round(2),
-                }).sort_values("Missing %", ascending=False)
+                missing_df = pd.DataFrame(
+                    {
+                        "Column": missing.index,
+                        "Missing Count": missing.values,
+                        "Missing %": (missing.values / len(self.data) * 100).round(2),
+                    }
+                ).sort_values("Missing %", ascending=False)
                 self.add_dataframe(
                     "Missing Data Summary",
                     missing_df,
@@ -393,11 +406,11 @@ class ReportGenerator:
         """
         try:
             from weasyprint import HTML
-        except ImportError:
+        except ImportError as err:
             raise ImportError(
                 "weasyprint is required for PDF generation. "
                 "Install with: pip install survey-ml-toolkit[reporting]"
-            )
+            ) from err
 
         # First generate HTML
         html_content = self._generate_html()
@@ -412,6 +425,5 @@ class ReportGenerator:
 
     def __repr__(self) -> str:
         return (
-            f"ReportGenerator(title='{self.title}', "
-            f"sections={len(self.sections)})"
+            f"ReportGenerator(title='{self.title}', " f"sections={len(self.sections)})"
         )

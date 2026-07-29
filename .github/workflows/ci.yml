@@ -40,7 +40,7 @@ jobs:
           python-version: ${{ env.PYTHON_DEFAULT }}
 
       - name: Cache pip
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.cache/pip
           key: lint-pip-${{ hashFiles('requirements*.txt', 'pyproject.toml') }}
@@ -93,7 +93,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
 
       - name: Cache pip
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             ~/.cache/pip
@@ -113,12 +113,12 @@ jobs:
 
       - name: Run fast tests
         run: |
-          pytest tests/ -v -m "not slow" --tb=short --timeout=60
+          pytest tests/ -v -m "not slow" --tb=short --timeout=60 --no-cov
 
       - name: Run slow tests
         if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.11'
         run: |
-          pytest tests/ -v -m "slow" --tb=short --timeout=300
+          pytest tests/ -v -m "slow" --tb=short --timeout=300 --no-cov
 
   # ===========================================================================
   # Job 3: Coverage Report
@@ -137,7 +137,7 @@ jobs:
           python-version: ${{ env.PYTHON_DEFAULT }}
 
       - name: Cache pip
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.cache/pip
           key: cov-pip-${{ hashFiles('requirements*.txt', 'pyproject.toml') }}
@@ -160,7 +160,7 @@ jobs:
           MPLBACKEND: Agg
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v6
         with:
           file: coverage.xml
           flags: unittests
@@ -168,7 +168,7 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
 
       - name: Upload coverage HTML report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: coverage-report
           path: htmlcov/
@@ -176,7 +176,7 @@ jobs:
 
       - name: Check coverage threshold
         run: |
-          coverage report --fail-under=70
+          coverage report --fail-under=80
 
   # ===========================================================================
   # Job 4: Build Package
@@ -208,7 +208,7 @@ jobs:
           twine check dist/*
 
       - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: dist
           path: dist/
@@ -242,7 +242,7 @@ jobs:
 
       - name: Run integration tests
         run: |
-          pytest tests/test_integration.py -v --timeout=600
+          pytest tests/test_integration.py -v --timeout=600 --no-cov
         env:
           MPLBACKEND: Agg
 

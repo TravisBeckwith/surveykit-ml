@@ -7,7 +7,7 @@ on survey data. Built for research analysts.
 """
 
 __title__ = "survey-ml-toolkit"
-__version__ = "0.1.0"
+__version__ = "1.0.0"
 __author__ = "Your Name"
 __license__ = "MIT"
 __copyright__ = "Copyright 2024 Your Name"
@@ -42,14 +42,13 @@ def __getattr__(name: str):
     """Lazy-load public API objects on first access."""
     if name in _LAZY_IMPORTS:
         import importlib
+
         module = importlib.import_module(_LAZY_IMPORTS[name])
         attr = getattr(module, name)
         globals()[name] = attr
         return attr
 
-    raise AttributeError(
-        f"module 'survey_toolkit' has no attribute '{name}'"
-    )
+    raise AttributeError(f"module 'survey_toolkit' has no attribute '{name}'")
 
 
 def __dir__():
