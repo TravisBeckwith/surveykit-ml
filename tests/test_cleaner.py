@@ -2,9 +2,9 @@
 Tests for survey_toolkit.cleaner module.
 """
 
-import pytest
-import pandas as pd
 import numpy as np
+import pandas as pd
+import pytest
 
 
 class TestSurveyCleaner:
@@ -40,19 +40,19 @@ class TestSurveyCleaner:
         from survey_toolkit.cleaner import SurveyCleaner
 
         cleaner = SurveyCleaner(sample_survey_df)
-        result = cleaner.remove_straightliners(
-            likert_columns, threshold=0.95
-        )
+        result = cleaner.remove_straightliners(likert_columns, threshold=0.95)
         clean = result.get_clean_data()
         assert len(clean) <= len(sample_survey_df)
 
     def test_remove_duplicates(self):
         from survey_toolkit.cleaner import SurveyCleaner
 
-        df = pd.DataFrame({
-            "q1": [1, 2, 3, 3],
-            "q2": [4, 5, 6, 6],
-        })
+        df = pd.DataFrame(
+            {
+                "q1": [1, 2, 3, 3],
+                "q2": [4, 5, 6, 6],
+            }
+        )
         cleaner = SurveyCleaner(df)
         clean = cleaner.remove_duplicates().get_clean_data()
         assert len(clean) == 3
@@ -91,19 +91,19 @@ class TestSurveyCleaner:
 
         df = pd.DataFrame({"q1": [1, np.nan, 3], "q2": [np.nan, 2, 3]})
         cleaner = SurveyCleaner(df)
-        clean = cleaner.handle_missing(
-            strategy="fill", fill_value=0
-        ).get_clean_data()
+        clean = cleaner.handle_missing(strategy="fill", fill_value=0).get_clean_data()
         assert clean.isna().sum().sum() == 0
         assert clean.loc[1, "q1"] == 0
 
     def test_handle_missing_drop_cols(self):
         from survey_toolkit.cleaner import SurveyCleaner
 
-        df = pd.DataFrame({
-            "good_col": [1, 2, 3, 4, 5],
-            "bad_col": [np.nan, np.nan, np.nan, np.nan, 1],
-        })
+        df = pd.DataFrame(
+            {
+                "good_col": [1, 2, 3, 4, 5],
+                "bad_col": [np.nan, np.nan, np.nan, np.nan, 1],
+            }
+        )
         cleaner = SurveyCleaner(df)
         clean = cleaner.handle_missing(
             strategy="drop_cols", threshold=0.5
@@ -116,9 +116,7 @@ class TestSurveyCleaner:
 
         df = pd.DataFrame({"q1": [1.0, np.nan, 3.0, np.nan, 5.0]})
         cleaner = SurveyCleaner(df)
-        clean = cleaner.handle_missing(
-            strategy="interpolate"
-        ).get_clean_data()
+        clean = cleaner.handle_missing(strategy="interpolate").get_clean_data()
         assert clean["q1"].isna().sum() == 0
 
     def test_handle_missing_invalid_strategy(self, sample_survey_df):
@@ -152,9 +150,7 @@ class TestSurveyCleaner:
 
         df = pd.DataFrame({"q1": [1, 2, 3, 4, 5]})
         cleaner = SurveyCleaner(df)
-        clean = cleaner.recode_reverse_scored(
-            ["q1"], scale_max=5
-        ).get_clean_data()
+        clean = cleaner.recode_reverse_scored(["q1"], scale_max=5).get_clean_data()
         assert list(clean["q1"]) == [5, 4, 3, 2, 1]
 
     def test_rename_columns(self):
@@ -162,33 +158,33 @@ class TestSurveyCleaner:
 
         df = pd.DataFrame({"old_name": [1, 2, 3]})
         cleaner = SurveyCleaner(df)
-        clean = cleaner.rename_columns(
-            {"old_name": "new_name"}
-        ).get_clean_data()
+        clean = cleaner.rename_columns({"old_name": "new_name"}).get_clean_data()
         assert "new_name" in clean.columns
         assert "old_name" not in clean.columns
 
     def test_filter_respondents_keep(self):
         from survey_toolkit.cleaner import SurveyCleaner
 
-        df = pd.DataFrame({
-            "group": ["A", "B", "C", "A", "B"],
-            "q1": [1, 2, 3, 4, 5],
-        })
+        df = pd.DataFrame(
+            {
+                "group": ["A", "B", "C", "A", "B"],
+                "q1": [1, 2, 3, 4, 5],
+            }
+        )
         cleaner = SurveyCleaner(df)
-        clean = cleaner.filter_respondents(
-            "group", ["A", "B"]
-        ).get_clean_data()
+        clean = cleaner.filter_respondents("group", ["A", "B"]).get_clean_data()
         assert len(clean) == 4
         assert set(clean["group"].unique()) == {"A", "B"}
 
     def test_filter_respondents_exclude(self):
         from survey_toolkit.cleaner import SurveyCleaner
 
-        df = pd.DataFrame({
-            "group": ["A", "B", "C", "A", "B"],
-            "q1": [1, 2, 3, 4, 5],
-        })
+        df = pd.DataFrame(
+            {
+                "group": ["A", "B", "C", "A", "B"],
+                "q1": [1, 2, 3, 4, 5],
+            }
+        )
         cleaner = SurveyCleaner(df)
         clean = cleaner.filter_respondents(
             "group", ["C"], exclude=True
@@ -212,8 +208,7 @@ class TestSurveyCleaner:
 
         cleaner = SurveyCleaner(sample_survey_df)
         clean = (
-            cleaner
-            .remove_speeders("duration_seconds", min_seconds=60)
+            cleaner.remove_speeders("duration_seconds", min_seconds=60)
             .remove_straightliners(likert_columns, threshold=0.95)
             .handle_missing(strategy="median")
             .get_clean_data()
@@ -225,11 +220,7 @@ class TestSurveyCleaner:
         from survey_toolkit.cleaner import SurveyCleaner
 
         cleaner = SurveyCleaner(sample_survey_df)
-        (
-            cleaner
-            .remove_speeders("duration_seconds")
-            .handle_missing(strategy="median")
-        )
+        (cleaner.remove_speeders("duration_seconds").handle_missing(strategy="median"))
         log = cleaner.get_log()
         assert len(log) == 2
         assert log[0]["action"] == "remove_speeders"

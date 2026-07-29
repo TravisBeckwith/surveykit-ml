@@ -2,10 +2,11 @@
 Tests for survey_toolkit.utils module.
 """
 
-import pytest
-import pandas as pd
-import numpy as np
 from pathlib import Path
+
+import numpy as np
+import pandas as pd
+import pytest
 
 
 class TestGenerateSampleSurvey:
@@ -177,10 +178,12 @@ class TestValidateSurveyData:
     def test_high_missing_warning(self):
         from survey_toolkit.utils import validate_survey_data
 
-        df = pd.DataFrame({
-            "q1": [1, 2, np.nan, np.nan, np.nan] * 20,
-            "q2": [1, 2, 3, 4, 5] * 20,
-        })
+        df = pd.DataFrame(
+            {
+                "q1": [1, 2, np.nan, np.nan, np.nan] * 20,
+                "q2": [1, 2, 3, 4, 5] * 20,
+            }
+        )
         result = validate_survey_data(df, max_missing_pct=50)
         assert len(result["warnings"]) > 0
 
@@ -195,9 +198,7 @@ class TestComputeScaleScores:
             "satisfaction": ["q1", "q2", "q3"],
             "usability": ["q4", "q5", "q6"],
         }
-        scores = compute_scale_scores(
-            sample_survey_df, construct_map, method="mean"
-        )
+        scores = compute_scale_scores(sample_survey_df, construct_map, method="mean")
         assert "satisfaction" in scores.columns
         assert "usability" in scores.columns
         assert len(scores) == len(sample_survey_df)
@@ -206,9 +207,7 @@ class TestComputeScaleScores:
         from survey_toolkit.utils import compute_scale_scores
 
         construct_map = {"total": ["q1", "q2", "q3"]}
-        scores = compute_scale_scores(
-            sample_survey_df, construct_map, method="sum"
-        )
+        scores = compute_scale_scores(sample_survey_df, construct_map, method="sum")
         assert "total" in scores.columns
 
     def test_invalid_method(self, sample_survey_df):

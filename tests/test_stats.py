@@ -2,9 +2,9 @@
 Tests for survey_toolkit.stats module.
 """
 
-import pytest
-import pandas as pd
 import numpy as np
+import pandas as pd
+import pytest
 
 
 class TestCronbachsAlpha:
@@ -46,9 +46,7 @@ class TestCronbachsAlpha:
 
         # Create uncorrelated items
         rng = np.random.RandomState(42)
-        data = {
-            f"q{i}": rng.randint(1, 6, size=100) for i in range(1, 6)
-        }
+        data = {f"q{i}": rng.randint(1, 6, size=100) for i in range(1, 6)}
         df = pd.DataFrame(data)
 
         stats = SurveyStats(df)
@@ -70,7 +68,7 @@ class TestCronbachsAlpha:
 
         itc = result["item_total_correlations"]
         assert len(itc) == len(likert_columns)
-        for col, corr in itc.items():
+        for _col, corr in itc.items():
             assert -1 <= corr <= 1
 
     def test_alpha_if_deleted(self, clean_survey_df, likert_columns):
@@ -96,8 +94,12 @@ class TestCronbachsAlpha:
         stats = SurveyStats(df)
         result = stats.cronbachs_alpha([f"q{i}" for i in range(1, 6)])
         assert result["interpretation"] in [
-            "Excellent", "Good", "Acceptable",
-            "Questionable", "Poor", "Unacceptable",
+            "Excellent",
+            "Good",
+            "Acceptable",
+            "Questionable",
+            "Poor",
+            "Unacceptable",
         ]
 
 
@@ -171,7 +173,7 @@ class TestCompareGroups:
         stats = SurveyStats(small_likert_df)
         result = stats.compare_groups("q1", "group")
 
-        for name, gs in result["group_stats"].items():
+        for _name, gs in result["group_stats"].items():
             assert "mean" in gs
             assert "median" in gs
             assert "std" in gs
@@ -299,7 +301,10 @@ class TestChiSquare:
         stats = SurveyStats(clean_survey_df)
         result = stats.chi_square_test("age_group", "gender")
         assert result["effect_size_interpretation"] in [
-            "Large", "Medium", "Small", "Negligible"
+            "Large",
+            "Medium",
+            "Small",
+            "Negligible",
         ]
 
     def test_contingency_table_shape(self, clean_survey_df):
@@ -360,13 +365,15 @@ class TestFactorAnalysis:
         stats = SurveyStats(clean_survey_df)
         result = stats.factor_analysis(likert_columns)
         assert result["kmo_interpretation"] in [
-            "Marvelous", "Meritorious", "Middling",
-            "Mediocre", "Miserable", "Unacceptable",
+            "Marvelous",
+            "Meritorious",
+            "Middling",
+            "Mediocre",
+            "Miserable",
+            "Unacceptable",
         ]
 
-    def test_variance_explained_structure(
-        self, clean_survey_df, likert_columns
-    ):
+    def test_variance_explained_structure(self, clean_survey_df, likert_columns):
         from survey_toolkit.stats import SurveyStats
 
         stats = SurveyStats(clean_survey_df)
@@ -414,9 +421,7 @@ class TestDescriptivesByGroup:
         from survey_toolkit.stats import SurveyStats
 
         stats = SurveyStats(clean_survey_df)
-        result = stats.descriptives_by_group(
-            likert_columns[:3], "age_group"
-        )
+        result = stats.descriptives_by_group(likert_columns[:3], "age_group")
 
         assert isinstance(result, pd.DataFrame)
         assert result.index.name == "age_group"

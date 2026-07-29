@@ -2,10 +2,9 @@
 Tests for survey_toolkit.reporting module.
 """
 
-import pytest
-import pandas as pd
-import numpy as np
 from pathlib import Path
+
+import pandas as pd
 
 
 class TestReportGenerator:
@@ -100,10 +99,13 @@ class TestReportGenerator:
         report = ReportGenerator(clean_survey_df)
 
         # Significant result
-        report.add_stats_result("Sig Test", {
-            "p_value": 0.01,
-            "significant": True,
-        })
+        report.add_stats_result(
+            "Sig Test",
+            {
+                "p_value": 0.01,
+                "significant": True,
+            },
+        )
         content = report.sections[0]["content"]
         assert "green" in content
 
@@ -111,17 +113,22 @@ class TestReportGenerator:
         from survey_toolkit.reporting import ReportGenerator
 
         report = ReportGenerator(clean_survey_df)
-        report.add_stats_result("NS Test", {
-            "p_value": 0.50,
-            "significant": False,
-        })
+        report.add_stats_result(
+            "NS Test",
+            {
+                "p_value": 0.50,
+                "significant": False,
+            },
+        )
         content = report.sections[0]["content"]
         assert "red" in content
 
     def test_add_figure(self, clean_survey_df, tmp_dir):
-        from survey_toolkit.reporting import ReportGenerator
-        import matplotlib.pyplot as plt
         import matplotlib
+        import matplotlib.pyplot as plt
+
+        from survey_toolkit.reporting import ReportGenerator
+
         matplotlib.use("Agg")
 
         # Create a dummy figure
@@ -132,9 +139,7 @@ class TestReportGenerator:
         plt.close("all")
 
         report = ReportGenerator(clean_survey_df)
-        report.add_figure(
-            "Test Figure", str(fig_path), description="A test figure"
-        )
+        report.add_figure("Test Figure", str(fig_path), description="A test figure")
 
         assert len(report.sections) == 1
         assert report.sections[0]["type"] == "figure"
@@ -168,7 +173,7 @@ class TestReportGenerator:
         result_path = report.generate(output_path=output_path)
 
         assert Path(result_path).exists()
-        content = Path(result_path).read_text()
+        content = Path(result_path).read_text(encoding="utf-8")
         assert "Test Report" in content
         assert "Tester" in content
         assert "<!DOCTYPE html>" in content
@@ -181,7 +186,7 @@ class TestReportGenerator:
         report.generate(output_path=output_path, auto_sections=True)
 
         assert Path(output_path).exists()
-        content = Path(output_path).read_text()
+        content = Path(output_path).read_text(encoding="utf-8")
         assert "Summary Statistics" in content
 
     def test_generate_table_of_contents(self, clean_survey_df, tmp_dir):
@@ -195,7 +200,7 @@ class TestReportGenerator:
         output_path = str(tmp_dir / "toc_report.html")
         report.generate(output_path=output_path, auto_sections=False)
 
-        content = Path(output_path).read_text()
+        content = Path(output_path).read_text(encoding="utf-8")
         assert "Table of Contents" in content
 
     def test_generate_no_toc_few_sections(self, clean_survey_df, tmp_dir):
@@ -207,7 +212,7 @@ class TestReportGenerator:
         output_path = str(tmp_dir / "no_toc.html")
         report.generate(output_path=output_path, auto_sections=False)
 
-        content = Path(output_path).read_text()
+        content = Path(output_path).read_text(encoding="utf-8")
         assert "Table of Contents" not in content
 
     def test_generate_creates_directories(self, clean_survey_df, tmp_dir):
@@ -227,7 +232,7 @@ class TestReportGenerator:
         output_path = str(tmp_dir / "override.html")
         report.generate(output_path=output_path, title="Override Title")
 
-        content = Path(output_path).read_text()
+        content = Path(output_path).read_text(encoding="utf-8")
         assert "Override Title" in content
 
     def test_generate_css_included(self, clean_survey_df, tmp_dir):
@@ -237,13 +242,11 @@ class TestReportGenerator:
         output_path = str(tmp_dir / "styled.html")
         report.generate(output_path=output_path)
 
-        content = Path(output_path).read_text()
+        content = Path(output_path).read_text(encoding="utf-8")
         assert "<style>" in content
         assert "font-family" in content
 
-    def test_full_report_pipeline(
-        self, clean_survey_df, likert_columns, tmp_dir
-    ):
+    def test_full_report_pipeline(self, clean_survey_df, likert_columns, tmp_dir):
         from survey_toolkit.reporting import ReportGenerator
         from survey_toolkit.stats import SurveyStats
 
@@ -264,7 +267,7 @@ class TestReportGenerator:
         result = report.generate(output_path=output_path, auto_sections=False)
 
         assert Path(result).exists()
-        content = Path(result).read_text()
+        content = Path(result).read_text(encoding="utf-8")
         assert "Cronbach" in content
         assert "Correlations" in content
         assert len(report.sections) == 3
