@@ -8,6 +8,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Fixed
+- **Windows CI failure: `UnicodeDecodeError` in report tests** (`test_generate_html`,
+  `test_generate_table_of_contents`, `test_generate_no_toc_few_sections`, and
+  the equivalent read in `test_integration.py`). `reporting.py` correctly
+  writes generated HTML reports with `encoding="utf-8"` (the templates
+  include emoji, e.g. 📊/📋 in headers), but the tests read them back with
+  `Path(...).read_text()` and no explicit encoding — which uses the
+  platform's default locale encoding. On Linux/macOS runners that
+  defaults to UTF-8 (so it never failed there), but on Windows it
+  defaults to `cp1252`, which can't decode the multi-byte UTF-8 emoji
+  sequences and raises `UnicodeDecodeError`. Added `encoding="utf-8"` to
+  all 8 affected `read_text()` calls so the read side always matches the
+  write side regardless of platform.
+
 - **Redundant/inconsistent coverage thresholds**: the coverage job enforced
   80% via pytest-cov (`pyproject.toml`'s `[tool.coverage.report] fail_under`)
   and then, in a separate later step, a redundant 70% via a bare
