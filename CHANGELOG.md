@@ -8,6 +8,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Fixed
+- **Redundant/inconsistent coverage thresholds**: the coverage job enforced
+  80% via pytest-cov (`pyproject.toml`'s `[tool.coverage.report] fail_under`)
+  and then, in a separate later step, a redundant 70% via a bare
+  `coverage report --fail-under=70`. Both currently pass against the
+  actual ~92% coverage, but two different numbers enforced by two
+  different mechanisms was confusing and not a single source of truth.
+  Aligned the second check to 80% to match.
+
+  Note: a report attributing a 64.52%-vs-80%-required coverage failure to
+  this job was investigated and doesn't match — running the job's actual
+  steps against the current code reproduces 92.10% coverage, passing
+  both gates. That number matches the "Run slow tests" step in the
+  separate `test` job instead, which was already fixed (see the
+  `--no-cov` entry below) by not coverage-gating an intentionally partial
+  test subset. Lowering the coverage threshold, as that report
+  recommended, would have masked real regressions on the actual
+  full-suite check rather than fixing anything.
+
 - **CI test job failure: `unrecognized arguments: --timeout=300`**. The
   workflow passes `--timeout=<n>` to `pytest` in four places (fast tests,
   slow tests, full-suite coverage, integration tests), but the
