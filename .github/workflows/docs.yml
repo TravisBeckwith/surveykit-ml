@@ -42,17 +42,20 @@ jobs:
           pip install -e ".[docs,ml]"
 
       - name: Build Sphinx docs
+        id: build_sphinx
         run: |
           cd docs
           make html
         continue-on-error: true
 
-      - name: Build fallback docs (if Sphinx not configured)
-        if: failure()
+      - name: Ensure docs build exists (fallback)
+        if: always()
         run: |
-          mkdir -p docs/_build/html
-          cp README.md docs/_build/html/
-          echo '<html><head><meta http-equiv="refresh" content="0;url=https://github.com/${{ github.repository }}"></head></html>' > docs/_build/html/index.html
+          if [ ! -d "docs/_build/html" ]; then
+            mkdir -p docs/_build/html
+            cp README.md docs/_build/html/
+            echo '<html><head><meta http-equiv="refresh" content="0;url=https://github.com/${{ github.repository }}"></head></html>' > docs/_build/html/index.html
+          fi
 
       - name: Upload docs artifact
         uses: actions/upload-pages-artifact@v4
