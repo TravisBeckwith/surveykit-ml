@@ -17,6 +17,9 @@
     <a href="https://github.com/TravisBeckwith/surveykit-ml/releases">
       <img src="https://img.shields.io/github/v/tag/TravisBeckwith/surveykit-ml?label=release" alt="Latest release">
     </a>
+    <a href="https://doi.org/10.5281/zenodo.21684948">
+      <img src="https://zenodo.org/badge/1194083322.svg" alt="DOI">
+    </a>
     <a href="https://www.python.org/downloads/">
       <img src="https://img.shields.io/badge/python-3.10+-blue.svg" alt="Python 3.10+">
     </a>
@@ -867,6 +870,7 @@ If you use this toolkit in your research, please cite:
   year = {2026},
   url = {https://github.com/TravisBeckwith/surveykit-ml},
   version = {1.0.0},
+  doi = {10.5281/zenodo.21684948},
   license = {MIT}
 }
 ```
