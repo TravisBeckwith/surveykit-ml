@@ -55,7 +55,7 @@ jobs:
           echo '<html><head><meta http-equiv="refresh" content="0;url=https://github.com/${{ github.repository }}"></head></html>' > docs/_build/html/index.html
 
       - name: Upload docs artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v4
         with:
           path: docs/_build/html/
 
